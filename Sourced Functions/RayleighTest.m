@@ -1,14 +1,28 @@
-function [pvalue,Ray,z] = RayleighTest(angs)
-%RAYLEIGHTEST Test null hypothesis that circular distribution is uniform
-%   Detailed explanation goes here
+function [pvalue,RayleighsR,z] = RayleighTest(angs)
+%RAYLEIGHTEST Test null hypothesis that circular distribution is uniform.
+%   [pvalue,Ray,z] = RAYLEIGHTEST(AngleVector) tests whether the
+%   distribution of angles in the input AngleVector is significantly
+%   different from a uniform distribution. Outputs Rayleighs R,
+%   Rayleigh's z (z) which is the test statistic for the Rayleighs Test,
+%   and the approximate p-value for the Rayleigh Test Statistic. This
+%   approximation is outlined in (Zar, J.H. (1999). Biostatistical Analysis
+%   (4th Edition) p. 617. The null hypothesis is rejected if the p-value
+%   calculated is less than the specified significance level ? e.g. ?=0.05.
+%
+%   Author: Connor P. Healy
+%
+%   Affiliation: Tara Deans Lab, Dept. of Biomedical Engineering,
+%   University of Utah
+%
+%   SEE ALSO KSSTRUCT.
+
 angs(isnan(angs))= [];
 
-R = ResLength(angs,1);
-n = length(angs);
+ResultantLength = ResLength(angs,1);
+nSamps = length(angs);
 
-Ray = n*R;
-z = n*(R^2);
+RayleighsR = nSamps*ResultantLength;
+z = nSamps*(ResultantLength^2);
 
-pvalue = exp(sqrt(1+4*n+4*(n^2-Ray^2))-(1+2*n));
+pvalue = exp(sqrt(1+4*nSamps+4*(nSamps^2-RayleighsR^2))-(1+2*nSamps));
 end
-

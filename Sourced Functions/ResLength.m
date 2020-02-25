@@ -1,6 +1,13 @@
 function [R,T,C,S] = ResLength(a,p)
-%RESLENGTH compute the pth resultant length of the set of angles in a in degrees. 
-%   Detailed explanation goes here
+%RESLENGTH compute the pth resultant length of the set of angles (a) in degrees. 
+%   [R] = ResLength(a,p) computes the pth resultant length (R) of the set
+%   of input angles (a).
+%
+%   Author: Connor Healy
+%   Affiliation: Tara Deans' Lab, Dept. of Biomedical Engineering,
+%   University of Utah.
+%
+%   SEE ALSO RAYLEIGHTEST.
 a(isnan(a))=[];
 
 n=length(a);

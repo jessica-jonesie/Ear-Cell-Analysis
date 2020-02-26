@@ -6,15 +6,25 @@ function [W,SigLvl,stat] = MWWUniformScores(varargin)
 %   the samples are from the same distribution/population. If SigLVL=*, **,
 %   or *** accept the alternative hypothesis, that the samples are from
 %   different distributions at the indicated significance level. *=0.05,
-%   **=0.01, ***=0.001;
+%   **=0.01, ***=0.001; Stat stores the additional values that are used in
+%   the calculation including the rank of each score. 
 %
 %   Author: Connor P. Healy, University of Utah, Dept. of Biomedical
-%   Engineering. 
+%   Engineering.
+%
+%   SEE ALSO KSSTRUCT, RAYLEIGHTEST.
 angs = varargin;
 ngroups = length(angs);
 
 stat = table;
-stat.Angles = cell2mat(angs)';
+try
+    vec = cell2mat(angs);
+catch
+    vec = cell2mat(cellfun(@transpose,angs,'UniformOutput',0));
+end
+stat.Angles = vec(:);
+
+
 N = length(stat.Angles);
 group = [];
 for n = 1:length(angs)
@@ -22,6 +32,9 @@ for n = 1:length(angs)
     group = [group; ones(gsamps(n),1)*n];
 end
 stat.Group = group;
+
+NaNRows = isnan(stat.Angles);
+stat(NaNRows,:)=[];
 
 stat = sortrows(stat);
 stat.Tied = ~isunique(stat.Angles);

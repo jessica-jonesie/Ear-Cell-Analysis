@@ -41,3 +41,4 @@ elseif W>critVals(3)
     SigLvl = '***';
 end
 
+[W,SigLvl,stat] = MWWUniformScores(angs{1},angs{2});

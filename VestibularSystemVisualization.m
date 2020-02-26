@@ -10,6 +10,10 @@ clrMap = 'RdYlBu';
 [file,path] = uigetfile('*.mat');
 load(fullfile(path,file));
 
+AngsCombo = CellProps.NormOrientation;
+AngsHair = CellProps.NormOrientation(CellProps.Type=='Hair');
+AngsSupport = CellProps.NormOrientation(CellProps.Type=='Support');
+
 %% Display Results
 PolAndOriHistograms(CellProps,'Full')
 PolarityWeightedOrientationHist(CellProps);
@@ -35,6 +39,11 @@ DistType ={'E','E','E','T'}; % Is the distribution empirical or theoretical.
 
 % Rayleigh Test for Uniformity. Tests the null hypothesis that the input
 % distribution is uniform.
-RayPValue_Combo = RayleighTest(CellProps.NormOrientation);
-RayPValue_Support = RayleighTest(CellProps.NormOrientation(CellProps.Type=='S'));
-RayPValue_Hair = RayleighTest(CellProps.NormOrientation(CellProps.Type=='H'));
+RayPValue_Combo = RayleighTest(AngsCombo);
+RayPValue_Support = RayleighTest(AngsSupport);
+RayPValue_Hair = RayleighTest(AngsHair);
+
+% Mardia-Watson-Wheel Uniform-Scores Test
+% This procedure tests whether two distributions (including circular
+% distributions) are equal. 
+[W,MWWSigLvl_SupportVHair] = MWWUniformScores(AngsHair,AngsSupport);

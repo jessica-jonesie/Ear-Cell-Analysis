@@ -3,6 +3,7 @@
 % https://towardsdatascience.com/simple-introduction-to-convolutional-neural-networks-cdf8d3077bac
 %% Analyze Training Data for Semantic Segmentation
 clc;clear;close all;
+addpath('Sourced Functions')
 
 imDir = fullfile('Data','Control','Full','Images');
 pxDir = fullfile('Data','Control','Full','PixelLabelData');

@@ -1,16 +1,16 @@
-function [datmap,figHandle,axHandle] = DataMap(bwIm,stat,varargin)
+function [datmap,figHandle,axHandle,labels] = DataMap(bwIm,stat,varargin)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-[labs, n] = bwlabel(bwIm);
+[labels, n] = bwlabel(bwIm);
 
 if n~=length(stat)
     error('Length of input data vector must be equal to the number of connected objects found in bwIm')
 end
 
-datmap = labs;
+datmap = labels;
 datmap(datmap==0) = NaN;
 for k=1:n
-    datmap(labs==k) = stat(k);
+    datmap(labels==k) = stat(k);
 end
 
 % Optional blurring

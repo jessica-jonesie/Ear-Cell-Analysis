@@ -18,7 +18,7 @@ imGauss = imadjust(imgaussfilt(imFlat,60));
 imThresh = imGauss>=200;
 
 % Fill small holes
-imClose = imclose(imThresh,strel('disk',100));
+imClose = imclose(imThresh,strel('disk',round(numel(RAW)/2e4)));
 
 % Convert to single pixel boundary;
 imBound = bwmorph(imClose,'remove');

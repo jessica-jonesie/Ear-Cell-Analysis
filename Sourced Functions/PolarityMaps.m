@@ -32,7 +32,7 @@ cbar= colorbar;
 
 ylabel(cbar,'Magnitude of Intracellular Polarity');
 title('Support Cell MIP')
-%% Support Cell Polarity
+%% Support Cell Polarity Blurred
 data = CellProps.CombinedPolarity(CellProps.Type=='S');
 bwIm = ImDat.SupportCellMask;
 

@@ -2,6 +2,7 @@
 % segmentation.
 clc; clear; close all;
 addpath('Sourced Functions')
+makeSquare = 1;
 
 %% Import the image data set/write to datastore.
 % Directory for images. 
@@ -32,12 +33,25 @@ end
 outputimsize = min(imsize);
 outputpixsize = min(pixsize);
 
+if makeSquare==1
+    sqsize = min(outputpixsize);
+    
+    if mod(sqsize,2)==1
+        sqsize = sqsize-1;
+    end
+    
+    outputimsize(1:2) = sqsize;
+    outputpixsize(1:2) = sqsize;
+end
+
+
 %% Process data
 for n=1:nims
     % Impose fixed size on images. In this case the minimum dimensions in
     % the data set.
     im{n} = CenterCrop(im{n},outputimsize);
     pix{n} = CenterCrop(pix{n},outputpixsize);
+    pix{n} = pix{n}+1; % Add background label;
 end
 
 imsavefolder = fullfile(imageDir,'preprocessed');

@@ -1,4 +1,4 @@
-function [im] = CenterCrop(im,outputSize)
+function [imout] = CenterCrop(im,outputSize)
 %CENTERCROP Crops an image uniformly about its center. 
 %   [im] = CENTERCROP(im,outputSize) crops the input image to the size
 %   specified by outputSize=[height width depth] about the images center.
@@ -20,6 +20,13 @@ im(:,maxx:end,:) = [];
 im(maxy:end,:,:) = [];
 im(:,1:minx-1,:) = [];
 im(1:miny-1,:,:) = [];
+
+if length(imSize)==3
+    imout = im(1:outputSize(1),1:outputSize(2),1:outputSize(3));
+elseif length(imSize)==2
+    imout = im(1:outputSize(1),1:outputSize(2));
+end
+
 
 end
 

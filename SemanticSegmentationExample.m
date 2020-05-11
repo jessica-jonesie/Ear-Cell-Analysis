@@ -5,12 +5,12 @@
 clc;clear;close all;
 addpath('Sourced Functions')
 
-imDir = fullfile('Data','Control','Full','Images');
-pxDir = fullfile('Data','Control','Full','PixelLabelData');
+imDir = fullfile('Data','Control','Split','Train','Images','preprocessed');
+pxDir = fullfile('Data','Control','Split','Train','PixelLabelData','preprocessed');
 
 imds = imageDatastore(imDir);
 
-ind = 8;
+ind = 3;
 I = readimage(imds,ind);
 % figure
 % imshow(I)
@@ -33,7 +33,7 @@ legend
 % create an image input layer. This defines the smallest image size that
 % the network can process.
 maxDim = 100;
-inputSize = [100 100 3]; 
+inputSize = size(I); 
 imgLayer = imageInputLayer(inputSize);
 
 %% Create a Downsampling Network %%%%

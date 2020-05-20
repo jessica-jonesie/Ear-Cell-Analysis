@@ -52,6 +52,7 @@ for n=1:nims
     im{n} = CenterCrop(im{n},outputimsize);
     pix{n} = CenterCrop(pix{n},outputpixsize);
     pix{n} = pix{n}+1; % Add background label;
+    pix{n}(pix{n}==4) = 3; % Omit intermediate label.
 end
 
 imsavefolder = fullfile(imageDir,'preprocessed');

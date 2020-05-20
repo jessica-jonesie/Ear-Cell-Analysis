@@ -14,9 +14,9 @@ I = readimage(imdsTrain,ind);
 % figure
 % imshow(I)
 
-classNames = ["Background" "Hair" "Support" "Intermediate"];
+classNames = ["Background" "Hair" "Support"];
 
-pixelLabelID = 1:4;
+pixelLabelID = 1:3;
 pxdsTrain = pixelLabelDatastore(pxDir,classNames,pixelLabelID);
 SegLabs = readimage(pxdsTrain,ind);
 
@@ -50,15 +50,7 @@ layers = [
     ];
 analyzeNetwork(layers)
 
-%% Set training options
-opts = trainingOptions('sgdm', ...
-    'InitialLearnRate',1e-2,...
-    'MaxEpochs',1000  ,...
-    'MiniBatchSize',64,...
-    'LearnRateSchedule','piecewise',...
-    'LearnRateDropFactor',0.8,...
-    'LearnRateDropPeriod',100,...
-    'Plots','training-progress');
+
 
 %% Create pixel label image datastore
 % Augment and preprocess training data images
@@ -70,30 +62,47 @@ frequency = tbl.PixelCount / totalNumberOfPixels;
 classWeights = 1./frequency;
 
 layers(end) = pixelClassificationLayer('Classes',tbl.Name,'ClassWeights',classWeights);
+
+% Read and display a test data
+testDir = fullfile('Data','Control','Split','Test','Images','preprocessed');
+imdsTest= imageDatastore(testDir);
+labDir = fullfile('Data','Control','Split','Test','PixelLabelData','preprocessed');
+labDS = imageDatastore(labDir);
+pxdsTest = pixelLabelDatastore(labDir,classNames,pixelLabelID);
+
+testingData = pixelLabelImageDatastore(imdsTest,pxdsTest);
+
+%% Set training options
+opts = trainingOptions('adam', ...
+    'InitialLearnRate',1e-2,...
+    'MaxEpochs',1000  ,...
+    'MiniBatchSize',64,...
+    'LearnRateSchedule','piecewise',...
+    'LearnRateDropFactor',0.8,...
+    'LearnRateDropPeriod',100,...
+    'Shuffle','every-epoch',...
+    'Plots','training-progress',...
+    'ValidationData',testingData);
 %% Train the Network
 net = trainNetwork(trainingData,layers,opts);
 
-
 %% Test the Network
-% Read and display a test image
-testDir = fullfile('Data','Control','Split','Test','Images','preprocessed');
-testDS= imageDatastore(testDir);
-labDir = fullfile('Data','Control','Split','Test','PixelLabelData','preprocessed');
-labDS = imageDatastore(labDir);
 
 testind = 4;
-testImage = readimage(testDS,testind);
-testLabs = readimage(labDS,testind);
+for n=1:4
+testImage = readimage(imdsTest,n);
+testLabs = readimage(labDS,n);
 testLabs = categorical(testLabs,pixelLabelID,classNames);
 % Segment the test image using the trained network and display the results.
 SegLabs = semanticseg(testImage,net);
 
-subplot(1,2,1)
+subplot(4,2,2*n-1)
 imshow(labeloverlay(testImage,testLabs));
 xlabel('Manual')
 
-subplot(1,2,2)
+subplot(4,2,2*n)
 imshow(labeloverlay(testImage,SegLabs));
 
 accu = sum((testLabs(:)==SegLabs(:)))./numel(testLabs);
 xlabel(sprintf('Learned (Accuracy %0.2f%%)',accu*100))
+end

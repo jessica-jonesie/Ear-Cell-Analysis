@@ -36,10 +36,9 @@ switch type
         numBFeatures = length(vectorcompsB);
 end
 
-% Catch case where there are no neighbors. By default
-% assume the current feature is neutrally aligned at this
-% scale. Alignment = 0
-alignment(isnan(alignment))=0;
+% Note: An alignment = NaN implies that there were no neighbors within a
+% specified radius of the given feature. In other words no alignment can be
+% computed because there is nothing to align to. 
 
 alignment = alignment';
 

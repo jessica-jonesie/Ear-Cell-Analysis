@@ -20,7 +20,7 @@ alignment= LocalAlignment(scale,Distances,[xcomp ycomp]);
 % This gives the alignment of the full population at a given scale r. This
 % is the Angle K measurement for a given scale.
 
-AngleK(r) = mean(alignment);
+AngleK(r) = mean(alignment,'omitnan');
 %% Angle K(r) (univariate)
 % If we loop the previous two functions over r we get the full angle K
 % description. 

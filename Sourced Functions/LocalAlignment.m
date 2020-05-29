@@ -20,20 +20,29 @@ switch type
     case 'univariate'
         numFeatures = length(vectorcomps);
             for i=1:numFeatures
-                u = vectorcomps(i,:); % Set target vector
+                a = vectorcomps(i,:); % Set target vector
                 Neighbors = isNeighbor(:,i); % find index of u's neighbors.
                 numNeighbors = sum(Neighbors);
                 
                 v = vectorcomps.*Neighbors; % Set Neighbor vectors
-                eachAlignment = sum(u.*v,2); % Alignment with each neighbor.
+                eachAlignment = sum(a.*v,2); % Alignment with each neighbor.
                 alignment(i) = sum(eachAlignment)/numNeighbors; % Average alignment overall.
                 
             end
     case 'bivariate'
         vectorcompsA = vectorcomps;
-        vectorcompsB = varargin{4};
-        numAFeatures = length(vectorcompsA);
-        numBFeatures = length(vectorcompsB);
+        vectorcompsB = varargin{1};
+        numFeaturesA = length(vectorcompsA);
+        
+        for i= 1:numFeaturesA
+        a = vectorcompsA(i,:); % Set target vector
+        Neighbors = isNeighbor(i,:)'; % find index of a's neighbors.
+        numNeighbors = sum(Neighbors);
+
+        b = vectorcompsB.*Neighbors; % Set Neighbor vectors
+        eachAlignment = sum(a.*b,2); % Alignment with each neighbor.
+        alignment(i) = sum(eachAlignment)/numNeighbors; % Average alignment overall.
+        end
 end
 
 % Note: An alignment = NaN implies that there were no neighbors within a

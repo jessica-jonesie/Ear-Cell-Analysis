@@ -34,7 +34,7 @@ BoundPts = pix2pts(imBound);
 
 
 %% Display Results
-[~,CellProps.RefAngle] = pt2ptInfluence(CellProps.Centroid,BoundPts);
+[~,CellProps.RefAngle] = pt2ptInfluence(CellProps.Centroid,BoundPts,'inverse',2);
 
 % unitX = cosd(refAngle);
 % unitY = sind(refAngle);

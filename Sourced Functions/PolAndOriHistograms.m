@@ -34,6 +34,17 @@ title('Support Cells');
 
 sgtitle('Orientation Distribution')
 %%
+nbins = 20;
+
+comboCounts = histcounts(CellProps.CombinedPolarity,nbins);...
+hairCounts = histcounts(CellProps.CombinedPolarity(CellProps.Type=='H'),nbins);
+supportCounts = histcounts(CellProps.CombinedPolarity(CellProps.Type=='S'),nbins);
+
+comboFreq = comboCounts./sum(comboCounts);
+hairFreq = hairCounts./sum(hairCounts);
+supportFreq = supportCounts./sum(supportCounts);
+
+maxFreq = max([comboFreq hairFreq supportFreq]);
 
 figure
 subplot(1,3,1)
@@ -42,6 +53,8 @@ h.Normalization = 'probability';
 title('Combined');
 h.FaceColor = 'm';
 xlabel('Magnitude of Polarity')
+ylim([0 maxFreq*1.1]);
+
 
 subplot(1,3,2)
 h=histogram(CellProps.CombinedPolarity(CellProps.Type=='H'),20);
@@ -49,6 +62,7 @@ h.Normalization = 'probability';
 h.FaceColor = 'r';
 title('Hair Cells');
 xlabel('Magnitude of Polarity')
+ylim([0 maxFreq*1.1]);
 
 subplot(1,3,3)
 h=histogram(CellProps.CombinedPolarity(CellProps.Type=='S'),20);
@@ -56,6 +70,7 @@ h.Normalization = 'probability';
 h.FaceColor = 'c';
 title('Support Cells');
 xlabel('Magnitude of Polarity')
+ylim([0 maxFreq*1.1]);
 
 sgtitle('Magnitude of Polarity Distribution')
 

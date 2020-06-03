@@ -57,3 +57,9 @@ RayPValue_Hair = RayleighTest(AngsHair);
 % This procedure tests whether two distributions (including circular
 % distributions) are equal. 
 [W,MWWSigLvl_SupportVHair] = MWWUniformScores(AngsHair,AngsSupport);
+
+%% Overlay reference angles
+figure
+imshow(ImDat.RAW)
+hold on
+quiver(CellProps.Centroid(:,1),CellProps.Centroid(:,2),cosd(CellProps.RefAngle),sind(CellProps.RefAngle),0.5,'Color','w')

@@ -1,4 +1,17 @@
-function [CellProps,BoundPts] = SelectUtricleBoundary(RAW,CellProps)
+function [CellProps,BoundPts] = SelectUtricleBoundary(RAW,CellProps,varargin)
+
+%% parse inputs
+p = inputParser;
+
+addRequired(p,'RAW');
+addRequired(p,'CellProps');
+
+addParameter(p,'Smooth',0,@isnumeric);
+
+parse(p,RAW,CellProps,varargin{:})
+
+smooth = p.Results.Smooth;
+%%
 % contrast
 Contrasted = localcontrast(RAW);
 
@@ -32,6 +45,11 @@ imBound(end,:) = 0;
 % convert pixel boundary to points
 BoundPts = pix2pts(imBound);
 
+npts = length(BoundPts);
+if smooth>0
+    FracRetain = 1-smooth;
+    mpts = floor(npts.*FracRetain); 
+end
 
 %% Display Results
 [~,CellProps.RefAngle] = pt2ptInfluence(CellProps.Centroid,BoundPts,'inverse',2);

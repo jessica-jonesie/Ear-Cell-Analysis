@@ -68,6 +68,8 @@ CellProps.AvgIntensityR = cell2mat(struct2cell(regionprops(typeRef,imR,'MeanInte
 CellProps.AvgIntensityG = cell2mat(struct2cell(regionprops(typeRef,imG,'MeanIntensity')))';
 CellProps.AvgIntensityB = cell2mat(struct2cell(regionprops(typeRef,imB,'MeanIntensity')))';
 
+CellProps.PixIDs =  struct2cell(regionprops(typeRef,'PixelIdxList'))';
+
 CellProps.Properties.VariableNames{6} = 'EllipseOrientation';
 
 CellProps.Type = repmat('S',[nCells 1]);

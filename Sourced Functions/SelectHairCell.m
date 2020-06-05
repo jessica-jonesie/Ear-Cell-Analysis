@@ -60,7 +60,7 @@ pixIDs = struct2cell(regionprops(imDil,'PixelIdxList'));
 %% Refine the set
 % Remove cells that have an average intensity less than some predefined
 % threshold.
-
+CellProps.PixIDs = pixIDs';
 
 omittedCells = CellProps.ID(CellProps.AvgIntensityR<20);
 omittedPixels = cell2mat(pixIDs(omittedCells));
@@ -68,6 +68,7 @@ imDil(omittedPixels(:)) = 0;
 CellProps(omittedCells,:) = [];
 nHair = length(CellProps.Area);
 CellProps.ID = (1:nHair)';
+
 
 imEllipse = bwEllipse(size(imDil),CellProps.Centroid,CellProps.MajorAxisLength,CellProps.MinorAxisLength,CellProps.Orientation);
 

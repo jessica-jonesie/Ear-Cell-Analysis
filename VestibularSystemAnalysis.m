@@ -34,8 +34,7 @@ SupportCellProps = addFonticulusVals(SupportCellProps);
 % Combine the hair cell and support cell data structures.
 CellProps = [HairCellProps; SupportCellProps];
 
-% Consolidate basal body and fonticulus data. Prompt user-in
-put when the
+% Consolidate basal body and fonticulus data. Prompt user-input when the
 % difference in orientations between these is greater than the threshold
 % specified by the second argument below. (Usually 90 degrees). 
 CellProps = CombineBBAndFont(CellProps,90);

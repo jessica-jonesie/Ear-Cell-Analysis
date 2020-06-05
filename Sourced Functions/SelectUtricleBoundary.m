@@ -1,4 +1,19 @@
 function [CellProps,BoundPts] = SelectUtricleBoundary(RAW,CellProps,varargin)
+%SELECTUTRICLEBOUNDARY finds the boundary of the Utricle. 
+%   [CellProps,BoundPts] = SELECTUTRICLEBOUNDARY(RAW,CellProps) compute the
+%   utricular boundary given a RAW full color image and a table of Cell
+%   properties. Compute the boundary points and reference angle for the
+%   cells who's centroids are stored in cell points and append them to the 
+%   CellProps Table.
+%
+%   [CellProps,BoundPts] =
+%   SELECTUTRICLEBOUNDARY(RAW,CELLPROPS,'Smooth',fraction) sample a
+%   fraction of the boundary points computed by SELECTUTRICLEBOUNDARY and
+%   use these to compute the reference angles.
+%
+%   SELECTUTRICLEBOUNDARY(RAW,CellProps,'CloseFactor',factor) multiply the
+%   size of the closing kernel by factor. The greater this factor the
+%   smoother the utricular boundary will be. 
 
 %% parse inputs
 p = inputParser;
@@ -7,10 +22,12 @@ addRequired(p,'RAW');
 addRequired(p,'CellProps');
 
 addParameter(p,'Smooth',0,@isnumeric);
+addParameter(p,'CloseFactor',1,@isnumeric);
 
 parse(p,RAW,CellProps,varargin{:})
 
 smooth = p.Results.Smooth;
+CloseFactor = p.Results.CloseFactor;
 %%
 % contrast
 Contrasted = localcontrast(RAW);
@@ -31,7 +48,7 @@ imGauss = imadjust(imgaussfilt(imFlat,60));
 imThresh = imGauss>=200;
 
 % Fill small holes
-imClose = imclose(imThresh,strel('disk',round(numel(RAW)/2e4)));
+imClose = imclose(imThresh,strel('disk',CloseFactor*round(numel(RAW)/2e4)));
 
 % Convert to single pixel boundary;
 imBound = bwmorph(imClose,'remove');
@@ -47,8 +64,9 @@ BoundPts = pix2pts(imBound);
 
 npts = length(BoundPts);
 if smooth>0
-    FracRetain = 1-smooth;
-    mpts = floor(npts.*FracRetain); 
+    mpts = floor(npts.*smooth); 
+    sampInd = datasample(1:npts,mpts,'Replace',false);
+    BoundPts = BoundPts(sampInd,:);
 end
 
 %% Display Results

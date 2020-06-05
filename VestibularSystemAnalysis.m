@@ -34,7 +34,8 @@ SupportCellProps = addFonticulusVals(SupportCellProps);
 % Combine the hair cell and support cell data structures.
 CellProps = [HairCellProps; SupportCellProps];
 
-% Consolidate basal body and fonticulus data. Prompt user-input when the
+% Consolidate basal body and fonticulus data. Prompt user-in
+put when the
 % difference in orientations between these is greater than the threshold
 % specified by the second argument below. (Usually 90 degrees). 
 CellProps = CombineBBAndFont(CellProps,90);
@@ -45,7 +46,7 @@ CellProps = CombineBBAndFont(CellProps,90);
 CellProps = CorrectPolarity(CellProps); 
 
 % Identify the utricular boundary. 
-[CellProps,BoundPts] = SelectUtricleBoundary(RAW,CellProps); 
+[CellProps,BoundPts] = SelectUtricleBoundary(RAW,CellProps,'CloseFactor',2); 
 
 % Normalize orientations with respece to the Utricular Boundary. 
 CellProps.NormOrientation = wrapTo180(CellProps.RefAngle-CellProps.CombinedOrientation);

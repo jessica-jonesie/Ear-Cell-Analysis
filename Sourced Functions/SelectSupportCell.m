@@ -49,6 +49,8 @@ imRegHRem = imdilate(bwmorph(HairCellMask,'thin',inf),strel('disk',1));
 addHoles2Hair = logical(sizeRef.*~imRegHRem);
 typeRef = bwpropfilt(addHoles2Hair,'EulerNumber',[1 1]);
 
+% Omit boundary features from further analysis
+typeRef = imclearborder(typeRef);
 
 %% Compute properties of Cells
 CellProps = bwcompprops(typeRef);

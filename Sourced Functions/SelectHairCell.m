@@ -41,6 +41,9 @@ imClose = imclose(imBW,strel('disk',2));
 imOpen = imopen(imClose,strel('disk',8));
 imDil = imdilate(imOpen,strel('disk',2));
 
+
+% Omit Boundary Features from further analysis
+imDil = imclearborder(imDil);
 %% 
 % Next, the hair cells must be approximated as ellipses. To do this, the 
 % centroids of the binary regions in the mask that correspond to each cell are 

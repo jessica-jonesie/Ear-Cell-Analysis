@@ -11,6 +11,7 @@ imagename = 'RAW';
 %% Analyze Image
 % Read in the image to be analyzed
 RAW = imread(strcat(imagename,'.png'));
+[BPix,map] = BoundPix(RAW);
 
 % Identify the hair cells in the image.
 [HairCellProps,ImDat] = SelectHairCell(RAW);

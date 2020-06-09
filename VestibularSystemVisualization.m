@@ -10,8 +10,6 @@ clrMap = 'RdYlBu';
 [file,path] = uigetfile('*.mat');
 load(fullfile(path,file));
 
-
-
 %% Display Results
 PolAndOriHistograms(CellProps,'Full')
 PolarityWeightedOrientationHist(CellProps);

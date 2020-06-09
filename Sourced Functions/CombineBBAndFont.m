@@ -43,9 +43,24 @@ SepProps.CombinedOrientation(NeedAveraging) = mean([SepProps.BBOrientation(NeedA
 
 % Scroll through each observation that needs input, and get that input
 NeedInputProps = SepProps(NeedInput,:);
-[NeedInputProps] = VCellManAnnot(NeedInputProps);
 
-SepProps(NeedInput,:) = NeedInputProps;
-CellProps(NeedCons,:) = SepProps;
+numNeedInput = length(NeedInput); 
+percNeedInput = 100*numNeedInput/nCells;
+
+boxmsg = sprintf('%d cells (%0.1f%% of population) appear to be incorrectly segmented. Would you like to manually correct them?',numNeedInput,percNeedInput);
+
+fig = uifigure;
+selection = uiconfirm(fig,boxmsg,'Segmentation Correction',...
+    'Options',{'Correct Cells','Omit Cells'});
+close(fig)
+switch selection
+    case 'Correct Cells'
+        [NeedInputProps] = VCellManAnnot(NeedInputProps);
+        SepProps(NeedInput,:) = NeedInputProps;
+        CellProps(NeedCons,:) = SepProps;
+    case 'Omit Cells'
+        CellProps(NeedCons,:) = [];
+end
+
 end
 

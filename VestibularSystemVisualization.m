@@ -19,8 +19,8 @@ OrientationVectorOverlay(CellProps,BoundPts,ImDat,'Unit')
 
 [CDF,x] = CDFPlot(CellProps,'Orientation','xy','none');
 
-OrientationMaps(CellProps,ImDat,clrMap);
-PolarityMaps(CellProps,ImDat,clrMap);
+% OrientationMaps(CellProps,ImDat,clrMap);
+% PolarityMaps(CellProps,ImDat,clrMap);
 
 %% Statistics
 [combinedX,intCDFs] = InterpCDFs(x,CDF);
@@ -61,3 +61,5 @@ figure
 imshow(ImDat.RAW)
 hold on
 quiver(CellProps.Centroid(:,1),CellProps.Centroid(:,2),cosd(CellProps.RefAngle),sind(CellProps.RefAngle),0.5,'Color','w')
+hold on 
+plot(BoundPts(:,1),BoundPts(:,2),'.r');

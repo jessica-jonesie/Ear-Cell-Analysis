@@ -46,9 +46,9 @@ CellProps = CombineBBAndFont(CellProps,90);
 CellProps = CorrectPolarity(CellProps); 
 
 % Identify the utricular boundary. 
-[CellProps,BoundPts] = SelectUtricleBoundary(RAW,CellProps,'CloseFactor',2); 
+[CellProps,BoundPts,ImDat.ImBound] = SelectUtricleBoundary(RAW,CellProps,'CloseFactor',2); 
 
-% Normalize orientations with respece to the Utricular Boundary. 
+% Normalize orientations with respect to the Utricular Boundary. 
 CellProps.NormOrientation = wrapTo180(CellProps.RefAngle-CellProps.CombinedOrientation);
 
 %% Save Results

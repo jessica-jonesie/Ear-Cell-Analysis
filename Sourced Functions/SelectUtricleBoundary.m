@@ -1,4 +1,4 @@
-function [CellProps,BoundPts] = SelectUtricleBoundary(RAW,CellProps,varargin)
+function [CellProps,BoundPts,imClose] = SelectUtricleBoundary(RAW,CellProps,varargin)
 %SELECTUTRICLEBOUNDARY finds the boundary of the Utricle. 
 %   [CellProps,BoundPts] = SELECTUTRICLEBOUNDARY(RAW,CellProps) compute the
 %   utricular boundary given a RAW full color image and a table of Cell
@@ -72,6 +72,11 @@ end
 %% Display Results
 [~,CellProps.RefAngle] = pt2ptInfluence(CellProps.Centroid,BoundPts,'inverse',2);
 
+
+CellProps.PixID = pts2pix(fliplr(CellProps.Centroid),size(imClose));
+CellProps.InBound = imClose(CellProps.PixID);
+
+CellProps.RefAngle(~CellProps.InBound)= CellProps.RefAngle(~CellProps.InBound)+180;
 % unitX = cosd(refAngle);
 % unitY = sind(refAngle);
 % 

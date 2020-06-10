@@ -55,12 +55,11 @@ selection = uiconfirm(fig,boxmsg,'Segmentation Correction',...
 close(fig)
 switch selection
     case 'Correct Cells'
-        [NeedInputProps] = VCellManAnnot(NeedInputProps);
+        [NeedInputProps] = VCellManAnnot(NeedInputProps,'manual');
+    case 'Omit Cells'
+        [NeedInputProps] = VCellManAnnot(NeedInputProps,'ignore');
+end
         SepProps(NeedInput,:) = NeedInputProps;
         CellProps(NeedCons,:) = SepProps;
-    case 'Omit Cells'
-        CellProps(NeedCons,:) = [];
-end
-
 end
 

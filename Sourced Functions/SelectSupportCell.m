@@ -1,4 +1,6 @@
 function [CellProps,ImDat] = SelectSupportCell(RAW,ImDat)
+EllipticalApproximation = false;
+
 imB = localcontrast(RAW(:,:,3)); % Blue Channel contrasted;
 imG = localcontrast(RAW(:,:,2)); % Green Channel contrasted;
 imR = localcontrast(RAW(:,:,1)); % Red Channel contrasted;
@@ -61,9 +63,20 @@ CellProps.MajorAxisLength = CellProps.MajorAxisLength.*expansionFactor;
 CellProps.MinorAxisLength = CellProps.MinorAxisLength.*expansionFactor;
 
 
+%% Alternate
+
+if EllipticalApproximation==true
+    [CellIms,MaskIms] = EllipseCrop(RAW,CellProps);
+else
+    [LabMask,~] = bwlabel(typeRef);
+    CellIms = labelSeparate(RAW,LabMask,'mask');
+    MaskIms = labelSeparate(typeRef,LabMask,'mask');
+end
+
+
 
 %% Save
-[CellIms,MaskIms] = EllipseCrop(RAW,CellProps);
+
 nCells = length(CellProps.Area);
 CellProps.ID = (1:nCells)';
 CellProps.AvgIntensityR = cell2mat(struct2cell(regionprops(typeRef,imR,'MeanIntensity')))';

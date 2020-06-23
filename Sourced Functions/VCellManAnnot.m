@@ -5,7 +5,7 @@ switch type
     case 'manual'
         for n = 1:height(NeedInputProps)
             curIm = NeedInputProps.CellIm{n};
-            curMask = NeedInputProps.CellMaskEllipse{n};
+            curMask = NeedInputProps.CellMask{n};
             visimR = curIm(:,:,1);
             visimB = curIm(:,:,3);
             visimR(~curMask) = 255;

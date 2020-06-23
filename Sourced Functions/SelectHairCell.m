@@ -1,7 +1,7 @@
 function [CellProps,ImDat] = SelectHairCell(RAW)
 %SELECTHAIRCELL Summary of this function goes here
 %   Detailed explanation goes here
-
+EllipticalApproximation = false;
 Contrasted = localcontrast(RAW);
 
 % Next separate the channels
@@ -72,8 +72,11 @@ CellProps(omittedCells,:) = [];
 nHair = length(CellProps.Area);
 CellProps.ID = (1:nHair)';
 
-
-imEllipse = bwEllipse(size(imDil),CellProps.Centroid,CellProps.MajorAxisLength,CellProps.MinorAxisLength,CellProps.Orientation);
+if EllipticalApproximation==true
+    imEllipse = bwEllipse(size(imDil),CellProps.Centroid,CellProps.MajorAxisLength,CellProps.MinorAxisLength,CellProps.Orientation);
+else
+    imEllipse = imDil;
+end
 
 % Isolate the cells
 [LabMask,~] = bwlabel(imDil);

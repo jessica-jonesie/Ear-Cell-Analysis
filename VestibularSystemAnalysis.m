@@ -11,6 +11,7 @@ imagename = 'RAW';
 %% Analyze Image
 % Read in the image to be analyzed
 RAW = imread(strcat(imagename,'.png'));
+
 [BPix,map] = BoundPix(RAW);
 
 % Identify the hair cells in the image.
@@ -23,7 +24,9 @@ RAW = imread(strcat(imagename,'.png'));
 [HairCellProps] = OrientHairCell_Fonticulus(HairCellProps);
 
 % Identify the support cells in the image
+
 [SupportCellProps,ImDat] = SelectSupportCell(RAW,ImDat);
+
 
 % Compute support cell orientation based upon basal body position.
 [SupportCellProps] = OrientSupportCell_BB(SupportCellProps);
@@ -32,25 +35,36 @@ RAW = imread(strcat(imagename,'.png'));
 % postion to the Support Cell data structure.
 SupportCellProps = addFonticulusVals(SupportCellProps);
 
+
+
 % Combine the hair cell and support cell data structures.
 CellProps = [HairCellProps; SupportCellProps];
-
+CellProps = removevars(CellProps,{'CellImRed','CellImGreen','CellImBlue','CellMaskEllipse'});
 % Consolidate basal body and fonticulus data. Prompt user-input when the
 % difference in orientations between these is greater than the threshold
-% specified by the second argument below. (Usually 90 degrees). 
+% specified by the second argument below. (Usually 90 degrees).
+tic;
 CellProps = CombineBBAndFont(CellProps,90);
+n=1;
+funtime(n) = toc;
 
 % Prompt additional user input where needed. 
 % A magnitude of polarity greater than 1 is impossible. When these occur,
 % prompt user input.
 CellProps = CorrectPolarity(CellProps); 
+n=n+1;
+funtime(n) = toc;
+
 
 % Identify the utricular boundary. 
 [CellProps,BoundPts,ImDat.ImBound] = SelectUtricleBoundary(RAW,CellProps,'CloseFactor',2); 
+n=n+1;
+funtime(n) = toc;
 
 % Normalize orientations with respect to the Utricular Boundary. 
 CellProps.NormOrientation = wrapTo180(CellProps.RefAngle-CellProps.CombinedOrientation);
 
+perftime = [funtime(1) diff(funtime)]
 %% Save Results
 curtime = qdt('Full');
 savedir = fullfile('Data',imagename);

@@ -9,13 +9,14 @@ addpath('Results')
 imagename = 'RAW';
 
 %% Analyze Image
+EllipticalApproximation = false;
 % Read in the image to be analyzed
 RAW = imread(strcat(imagename,'.png'));
 
 [BPix,map] = BoundPix(RAW);
 
 % Identify the hair cells in the image.
-[HairCellProps,ImDat] = SelectHairCell(RAW);
+[HairCellProps,ImDat] = SelectHairCell(RAW,EllipticalApproximation);
 
 % Compute the hair cell orientation based on basal body position.
 [HairCellProps] = OrientHairCell_BB(HairCellProps);
@@ -24,7 +25,7 @@ RAW = imread(strcat(imagename,'.png'));
 [HairCellProps] = OrientHairCell_Fonticulus(HairCellProps);
 
 % Identify the support cells in the image
-[SupportCellProps,ImDat] = SelectSupportCell(RAW,ImDat);
+[SupportCellProps,ImDat] = SelectSupportCell(RAW,ImDat,EllipticalApproximation);
 
 % Compute support cell orientation based upon basal body position.
 [SupportCellProps] = OrientSupportCell_BB(SupportCellProps);
@@ -56,10 +57,10 @@ toc
 CellProps.NormOrientation = wrapTo180(CellProps.RefAngle-CellProps.CombinedOrientation);
 
 %% Save Results
-% curtime = qdt('Full');
-% savedir = fullfile('Data',imagename);
-% mkdir (savedir)
-% 
-% savename = strcat(imagename,'_','data','_',curtime,'.mat');
-% save(fullfile(savedir,savename),'CellProps','ImDat','BoundPts');
+curtime = qdt('Full');
+savedir = fullfile('Data',imagename);
+mkdir (savedir)
+
+savename = strcat(imagename,'_','data','_',curtime,'.mat');
+save(fullfile(savedir,savename),'CellProps','ImDat','BoundPts');
 

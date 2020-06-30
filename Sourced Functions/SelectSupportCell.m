@@ -1,5 +1,4 @@
-function [CellProps,ImDat] = SelectSupportCell(RAW,ImDat)
-EllipticalApproximation = false;
+function [CellProps,ImDat] = SelectSupportCell(RAW,ImDat,EllipticalApproximation)
 
 imB = localcontrast(RAW(:,:,3)); % Blue Channel contrasted;
 imG = localcontrast(RAW(:,:,2)); % Green Channel contrasted;
@@ -104,4 +103,11 @@ CellProps.CellMaskEllipse = MaskIms';
 
 CellProps.CellMask = labelSeparate(true(width,height),bwlabel(typeRef),'mask')';
 ImDat.SupportCellMask = typeRef;
+
+if EllipticalApproximation==true
+    CellProps.CellMask = CellProps.CellMaskEllipse;
+else
+    CellProps.CellMask = labelSeparate(true(width,height),bwlabel(typeRef),'mask')';
+end
+
 end

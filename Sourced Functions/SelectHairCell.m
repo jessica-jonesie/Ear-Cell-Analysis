@@ -1,7 +1,6 @@
-function [CellProps,ImDat] = SelectHairCell(RAW)
+function [CellProps,ImDat] = SelectHairCell(RAW,EllipticalApproximation)
 %SELECTHAIRCELL Summary of this function goes here
 %   Detailed explanation goes here
-EllipticalApproximation = false;
 Contrasted = localcontrast(RAW);
 
 % Next separate the channels
@@ -104,6 +103,13 @@ CellProps.CellImRed = labelSeparate(imR,LabEllipse,'mask')';
 CellProps.CellImGreen = labelSeparate(imG,LabEllipse,'mask')';
 CellProps.CellImBlue = labelSeparate(imB,LabEllipse,'mask')';
 CellProps.CellMaskEllipse = labelSeparate(imEllipse,LabEllipse,'mask')';
-CellProps.CellMask = labelSeparate(imDil,LabMask,'mask')';
+
+
+if EllipticalApproximation==true
+    CellProps.CellMask = CellProps.CellMaskEllipse;
+else
+    CellProps.CellMask = labelSeparate(imDil,LabMask,'mask')';
+end
+
 end
 

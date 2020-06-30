@@ -1,9 +1,12 @@
 function [NeedInputProps] = VCellManAnnot(NeedInputProps,type)
 %VCELLMANANNOT manually annotate polar features in vestibular cells
 %   Detailed explanation goes here
+numNeed = height(NeedInputProps);
+
+poleLocalCenter = zeros(numNeed,2); 
 switch type
     case 'manual'
-        for n = 1:height(NeedInputProps)
+        for n = 1:numNeed
             curIm = NeedInputProps.CellIm{n};
             curMask = NeedInputProps.CellMask{n};
             visimR = curIm(:,:,1);
@@ -35,7 +38,7 @@ switch type
         close all
 
     case 'ignore'
-        poleLocalCenter = nan(height(NeedInputProps),2);
+        poleLocalCenter = nan(numNeed,2);
 end
 
 

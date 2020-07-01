@@ -17,7 +17,7 @@ end
 
 %% Local Alignment
 for r=1:length(scales)
-scale = scales(r);
+scale = scales(r); 
 
 % This function can be used to compute the alignment of each feature with
 % respect to neighbors at a given scale. 

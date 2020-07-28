@@ -9,7 +9,7 @@ addpath('Results')
 imagename = 'RAW';
 
 %% Analyze Image
-EllipticalApproximation = false;
+EllipticalApproximation = true;
 % Read in the image to be analyzed
 RAW = imread(strcat(imagename,'.png'));
 

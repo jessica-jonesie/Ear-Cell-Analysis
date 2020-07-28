@@ -1,6 +1,11 @@
 function [AngleK] = AngleK(scales,vecA,varargin)
 %UNTITLED5 Summary of this function goes here
-%   Detailed explanation goes here
+%   Detailed explanation goes here.
+
+if max(vecA.angle)>2*pi
+    warning('Angle exceeding 2{\pi} detected. Angle K expects angles in radians.')
+end
+
 %% Compute unit vector components
     [xcompA,ycompA] = ComputeComponents(vecA.magnitude,vecA.angle,'unit');
 

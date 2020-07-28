@@ -26,7 +26,7 @@ switch type
                 
                 v = vectorcomps.*Neighbors; % Set Neighbor vectors
                 eachAlignment = sum(a.*v,2); % Alignment with each neighbor.
-                alignment(i) = sum(eachAlignment)/numNeighbors; % Average alignment overall.
+                alignment(i) = sum(eachAlignment,'omitnan')/numNeighbors; % Average alignment overall.
                 
             end
     case 'bivariate'
@@ -41,7 +41,7 @@ switch type
 
         b = vectorcompsB.*Neighbors; % Set Neighbor vectors
         eachAlignment = sum(a.*b,2); % Alignment with each neighbor.
-        alignment(i) = sum(eachAlignment)/numNeighbors; % Average alignment overall.
+        alignment(i) = sum(eachAlignment,'omitnan')/numNeighbors; % Average alignment overall.
         end
 end
 

@@ -63,3 +63,67 @@ hold on
 quiver(CellProps.Centroid(:,1),CellProps.Centroid(:,2),cosd(CellProps.RefAngle),sind(CellProps.RefAngle),0.5,'Color','w')
 hold on 
 plot(BoundPts(:,1),BoundPts(:,2),'.r');
+
+
+
+%% Angle K
+HID = CellProps.Type=='H';
+SID = CellProps.Type=='S';
+
+% Vector fields with normalized Orientation
+figure
+quiver(CellProps.Centroid(HID,1),CellProps.Centroid(HID,2),cosd(CellProps.NormOrientation(HID)),sind(CellProps.NormOrientation(HID)),0.5,'Color','r')
+hold on
+quiver(CellProps.Centroid(SID,1),CellProps.Centroid(SID,2),cosd(CellProps.NormOrientation(SID)),sind(CellProps.NormOrientation(SID)),0.5,'Color','c')
+hold off
+axis ij
+axis tight
+
+mindim = min(size(ImDat.Red));
+scales = linspace(0,mindim/2,21);
+scales(1) = [];
+
+hvec.origin = CellProps.Centroid(HID,:);
+hvec.angle = CellProps.NormOrientation(HID)*pi/180;
+hvec.magnitude = ones(sum(HID),1);
+
+svec.origin = CellProps.Centroid(SID,:);
+svec.angle = CellProps.NormOrientation(SID)*pi/180;
+svec.magnitude = ones(sum(SID),1);
+
+% Compute AngleK stats 
+Khh = AngleK(scales,hvec); % hair to hair
+Kss = AngleK(scales,svec); % support to support
+Khs = AngleK(scales,hvec,svec); % Hair to support
+Ksh = AngleK(scales,svec,hvec); % support to hair.
+
+
+figure
+subplot(2,2,1)
+plot(scales,Khh)
+xlabel('Scale (pixels)');
+ylabel('Population Alignment')
+title('Hair Cell to Hair Cell')
+ylim([-1,1])
+
+subplot(2,2,2)
+plot(scales,Kss)
+xlabel('Scale (pixels)');
+ylabel('Population Alignment')
+title('Support Cell to Support Cell')
+ylim([-1,1])
+
+subplot(2,2,3)
+plot(scales,Khs)
+xlabel('Scale (pixels)');
+ylabel('Population Alignment')
+title('Hair Cell to Support Cell')
+ylim([-1,1])
+
+subplot(2,2,4)
+plot(scales,Khs)
+xlabel('Scale (pixels)');
+ylabel('Population Alignment')
+title('Support Cell to Hair Cell')
+ylim([-1,1])
+

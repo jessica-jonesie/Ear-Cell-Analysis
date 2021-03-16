@@ -1,5 +1,5 @@
 function [datmap,figHandle,axHandle,labels] = DataMap(bwIm,stat,varargin)
-%UNTITLED Summary of this function goes here
+%Color labels according to an input statistic
 %   Detailed explanation goes here
 [labels, n] = bwlabel(bwIm);
 

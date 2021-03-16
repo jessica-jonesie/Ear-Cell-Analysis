@@ -17,6 +17,7 @@ RAW = imread(strcat(imagename,'.png'));
 
 % Identify the hair cells in the image.
 [HairCellProps,ImDat] = SelectHairCell(RAW,EllipticalApproximation);
+% [HairCellProps,ImDat] = SelectHairCellAlt(RAW,EllipticalApproximation);
 
 % Compute the hair cell orientation based on basal body position.
 [HairCellProps] = OrientHairCell_BB(HairCellProps);

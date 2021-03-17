@@ -66,8 +66,7 @@ npts = length(BoundPts);
 if smooth>0
     mpts = floor(npts.*smooth); 
     sampInd = datasample(1:npts,mpts,'Replace',false);
-    BoundPts = BoundPts(sampInd,:);
-end
+   end
 
 %% Display Results
 [~,CellProps.RefAngle] = pt2ptInfluence(CellProps.Centroid,BoundPts,'inverse',2);

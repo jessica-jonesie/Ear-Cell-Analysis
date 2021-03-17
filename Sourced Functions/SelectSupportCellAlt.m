@@ -6,56 +6,31 @@ imR = localcontrast(RAW(:,:,1)); % Red Channel contrasted;
 
 [width,height,depth] = size(RAW);
 HairCellMask = ImDat.HairCellMask;
-% Subtract Hair Cells
-subHCells = uint8(double(imB).*double(~HairCellMask));
+CellMask = ImDat.CellMask;
+% Get Cell mask
+SupportCellMask = logical(CellMask.*~HairCellMask);
 
-% Remove Stereociliary bundles. These bundles are brighter than anything 
-% else in the image. 
-imThresh = subHCells;
-imThresh(imThresh>50) = 0;
-imThresh = imadjust(imThresh);
+%% Get morphological properties
+CellProps = bwcompprops(SupportCellMask);
+nSupport = length(CellProps.Area);
 
-% Correct Background
-imMedian = medfilt2(imThresh,5.*[1 1]);
-imFlat = localcontrast(imflatfield(imMedian,20),1.0,0.5);
-
-% Refine edges
-imBW = imbinarize(imFlat,0.3);
-imOpen = imerode(imBW,strel('disk',1));
-
-% Invert
-imInvert = ~imOpen;
-
-%% Watershedding
-D = -bwdist(~imInvert);
-mask = imextendedmin(D,2);
-D2 = imimposemin(D,mask);
-Ld2 = watershed(D2);
-
-imShed = imInvert;
-imShed(Ld2==0) = 0;
-imShed = ~imShed;
-
-% Erode and make uniform boundaries;
-imSkel = bwmorph(imShed,'thin',inf);
-imBounds = bwareaopen(imdilate(imSkel,strel('disk',1)),200);
+% Add additional properties.
+CellProps.Circularity = (4*pi*CellProps.Area)./(CellProps.Perimeter.^2);
+CellProps.ID = (1:nSupport)';
 
 %% Refine with morphological thresholding
-imReg = ~imBounds;
-sizeRef = bwpropfilt(imReg,'Area',[100 1000]);
+pixIDs = CellProps.PixelIdxList;
 
-% Reapply hair cell removal
-imRegHRem = imdilate(bwmorph(HairCellMask,'thin',inf),strel('disk',1));
-addHoles2Hair = logical(sizeRef.*~imRegHRem);
-typeRef = bwpropfilt(addHoles2Hair,'EulerNumber',[1 1]);
+WrongArea = CellProps.ID(CellProps.Area<100 | CellProps.Area>1500);
+omittedCells = unique(WrongArea);
 
-% Omit boundary features from further analysis
-typeRef = imclearborder(typeRef);
+omittedPixels = cell2mat(pixIDs(omittedCells));
+SupportCellMask(omittedPixels(:)) = 0;
+CellProps(omittedCells,:) = [];
+nSupport= length(CellProps.Area);
+CellProps.ID = (1:nSupport)';
 
-%% Compute properties of Cells
-CellProps = bwcompprops(typeRef);
-
-% Expand Ellipses slightly.
+%% Expand Ellipses slightly.
 expansionFactor = 1.0;
 CellProps.MajorAxisLength = CellProps.MajorAxisLength.*expansionFactor;
 CellProps.MinorAxisLength = CellProps.MinorAxisLength.*expansionFactor;
@@ -66,22 +41,20 @@ CellProps.MinorAxisLength = CellProps.MinorAxisLength.*expansionFactor;
 if EllipticalApproximation==true
     [CellIms,MaskIms] = EllipseCrop(RAW,CellProps);
 else
-    [LabMask,~] = bwlabel(typeRef);
+    [LabMask,~] = bwlabel(SupportCellMask);
     CellIms = labelSeparate(RAW,LabMask,'mask');
-    MaskIms = labelSeparate(typeRef,LabMask,'mask');
+    MaskIms = labelSeparate(SupportCellMask,LabMask,'mask');
 end
-
-
 
 %% Save
 
 nCells = length(CellProps.Area);
 CellProps.ID = (1:nCells)';
-CellProps.AvgIntensityR = cell2mat(struct2cell(regionprops(typeRef,imR,'MeanIntensity')))';
-CellProps.AvgIntensityG = cell2mat(struct2cell(regionprops(typeRef,imG,'MeanIntensity')))';
-CellProps.AvgIntensityB = cell2mat(struct2cell(regionprops(typeRef,imB,'MeanIntensity')))';
+CellProps.AvgIntensityR = cell2mat(struct2cell(regionprops(SupportCellMask,imR,'MeanIntensity')))';
+CellProps.AvgIntensityG = cell2mat(struct2cell(regionprops(SupportCellMask,imG,'MeanIntensity')))';
+CellProps.AvgIntensityB = cell2mat(struct2cell(regionprops(SupportCellMask,imB,'MeanIntensity')))';
 
-CellProps.PixIDs =  struct2cell(regionprops(typeRef,'PixelIdxList'))';
+% CellProps.PixIDs =  struct2cell(regionprops(SupportCellMask,'PixelIdxList'))';
 
 CellProps.Properties.VariableNames{6} = 'EllipseOrientation';
 
@@ -100,13 +73,13 @@ CellProps.CellImBlue = CellImBlue';
 
 CellProps.CellMaskEllipse = MaskIms';
 
-CellProps.CellMask = labelSeparate(true(width,height),bwlabel(typeRef),'mask')';
-ImDat.SupportCellMask = typeRef;
+CellProps.CellMask = labelSeparate(true(width,height),bwlabel(SupportCellMask),'mask')';
+ImDat.SupportCellMask = SupportCellMask;
 
 if EllipticalApproximation==true
     CellProps.CellMask = CellProps.CellMaskEllipse;
 else
-    CellProps.CellMask = labelSeparate(true(width,height),bwlabel(typeRef),'mask')';
+    CellProps.CellMask = labelSeparate(true(width,height),bwlabel(SupportCellMask),'mask')';
 end
 
 end

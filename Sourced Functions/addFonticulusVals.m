@@ -3,7 +3,7 @@ function [CellProps] = addFonticulusVals(CellProps,varargin)
 %   Detailed explanation goes here
 nCells = length(CellProps.Area);
 
-if strcmp(varargin{1},'SetEqual')
+if ~isempty(varargin)
     CellProps.FDetected = CellProps.BBDetected;
     CellProps.FArea = CellProps.BBArea;
     CellProps.FLocalCentroid = CellProps.BBLocalCentroid;

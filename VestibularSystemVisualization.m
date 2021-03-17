@@ -10,6 +10,8 @@ clrMap = 'RdYlBu';
 [file,path] = uigetfile('*.mat');
 load(fullfile(path,file));
 
+nanrows = isnan(CellProps.CombinedOrientation);
+CellProps(nanrows,:)=[];
 %% Display Results
 PolAndOriHistograms(CellProps,'Full')
 PolarityWeightedOrientationHist(CellProps);
@@ -72,8 +74,9 @@ SID = CellProps.Type=='S';
 
 % Vector fields with normalized Orientation
 figure
-quiver(CellProps.Centroid(HID,1),CellProps.Centroid(HID,2),cosd(CellProps.NormOrientation(HID)),sind(CellProps.NormOrientation(HID)),0.5,'Color','r')
+imshow(ImDat.RAW)
 hold on
+quiver(CellProps.Centroid(HID,1),CellProps.Centroid(HID,2),cosd(CellProps.NormOrientation(HID)),sind(CellProps.NormOrientation(HID)),0.5,'Color','r')
 quiver(CellProps.Centroid(SID,1),CellProps.Centroid(SID,2),cosd(CellProps.NormOrientation(SID)),sind(CellProps.NormOrientation(SID)),0.5,'Color','c')
 hold off
 axis ij

@@ -6,7 +6,7 @@ addpath('Sourced Functions')
 addpath('Data')
 addpath('Results')
 
-imagename = 'RAW';
+imagename = 'GammaTub_02_merge_cropped';
 
 %% Analyze Image
 EllipticalApproximation = true;
@@ -16,20 +16,20 @@ RAW = imread(strcat(imagename,'.png'));
 [BPix,map] = BoundPix(RAW);
 
 % Identify the hair cells in the image.
-[HairCellProps,ImDat] = SelectHairCell(RAW,EllipticalApproximation);
-% [HairCellProps,ImDat] = SelectHairCellAlt(RAW,EllipticalApproximation);
+% [HairCellProps,ImDat] = SelectHairCell(RAW,EllipticalApproximation);
+[HairCellProps,ImDat] = SelectHairCellAlt(RAW,EllipticalApproximation);
 
 % Compute the hair cell orientation based on basal body position.
-[HairCellProps] = OrientHairCell_BB(HairCellProps,'blue');
+[HairCellProps] = OrientHairCell_BB(HairCellProps,'red');
 
 % Compute the hair cell orientation based on fonticulus position.
-[HairCellProps] = OrientHairCell_Fonticulus(HairCellProps);
+[HairCellProps] = addFonticulusVals(HairCellProps,'SetEqual');
 
 % Identify the support cells in the image
-[SupportCellProps,ImDat] = SelectSupportCell(RAW,ImDat,EllipticalApproximation);
+[SupportCellProps,ImDat] = SelectSupportCellAlt(RAW,ImDat,EllipticalApproximation);
 
 % Compute support cell orientation based upon basal body position.
-[SupportCellProps] = OrientSupportCell_BB(SupportCellProps,'blue');
+[SupportCellProps] = OrientSupportCell_BB(SupportCellProps,'red');
 
 % Add empty values for orientation/polarity values base upon fonticulus
 % postion to the Support Cell data structure.
@@ -49,10 +49,15 @@ CellProps = CombineBBAndFont(CellProps,90);
 
 CellProps = CorrectPolarity(CellProps); 
 
-% Identify the utricular boundary. 
-tic
-[CellProps,BoundPts,ImDat.ImBound] = SelectUtricleBoundary(RAW,CellProps,'CloseFactor',2); 
-toc
+% Identify the utricular boundary.
+CellProps.RefAngle = zeros(height(CellProps),1);
+% tic
+% [CellProps,BoundPts,ImDat.ImBound] = SelectUtricleBoundary(RAW,CellProps,'CloseFactor',2); 
+% toc
+% Define an arbitrary utricular boundar
+[imW,imH,imz]=size(RAW);
+BoundPts =[1 1;1 imH/2; 1 imH];
+
 
 % Normalize orientations with respect to the Utricular Boundary. 
 CellProps.NormOrientation = wrapTo180(CellProps.RefAngle-CellProps.CombinedOrientation);

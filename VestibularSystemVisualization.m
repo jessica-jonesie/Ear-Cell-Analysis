@@ -17,7 +17,7 @@ PolAndOriHistograms(CellProps,'Full')
 PolarityWeightedOrientationHist(CellProps);
 CellSelectionOverlay(ImDat)
 
-OrientationVectorOverlay(CellProps,BoundPts,ImDat,'Unit')
+OrientationVectorOverlay(CellProps,BoundPts,ImDat,'Scaling','BB','ScaleValue',0);
 
 [CDF,x] = CDFPlot(CellProps,'Orientation','xy','none');
 

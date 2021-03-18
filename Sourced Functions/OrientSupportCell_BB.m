@@ -7,22 +7,31 @@ channums = 1:3;
 ChanNum = channums(strcmp(Channs,Chann));
 for n = 1:nCells
     CellIm = CellProps.CellIm{n};
+    imK{1}=CellIm;
 %     [ydim(n) xdim(n)] = size(CellIm);
     bChann = imadjust(CellIm(:,:,ChanNum));
+    imK{2}=bChann;
     
     bIsolate = imadjust(ChannelIsolate(CellIm,Chann));
+    imK{3}=bIsolate;
+    
     % Median filter to reduce noise
     medFilt = imadjust(medfilt2(bIsolate,2.*[1 1]));
+    imK{4} = medFilt;
     
     % Threshold and Binarize
     imBW = imbinarize(medFilt,0.6);
+    imK{5} = imBW;
     
     % Solidify
     imSolid = imclose(imBW,strel('disk',2));
+    imK{6} = imSolid;
     
     % Select largest 
     imBB{n} = bwpropfilt(imSolid,'Area',1);
+    imK{7}=imBB{n};
 %     imshowpair(bChann,imBB{n},'montage')
+%     montage(imK);
 end
 
 CellProps = BBOrient(CellProps,imBB,'BB');

@@ -21,8 +21,8 @@ HCells(HCells<0) = 0;
 SupportCells(SupportCells<0) = 0;
 
 Bounds = logical(Bounds);
-HCells = logical(HCells);
-SupportCells = logical(SupportCells);
+HCells = imclearborder(logical(HCells));
+SupportCells = imclearborder(logical(SupportCells));
 
 %% Extract Cell params
 [HairCellProps,ImDat] = GetPropsAndIms(BasalBodies,HCells);
@@ -48,7 +48,8 @@ RayPValue_Hair = RayleighTest(CellProps.DblAngOrientation(CellProps.Type=='H'));
 
 [W,MWWSigLvl_SupportVHair] = MWWUniformScores(CellProps.DblAngOrientation(CellProps.Type=='H'),CellProps.DblAngOrientation(CellProps.Type=='S'));
 
-%%
+%% Gamma Tubulin versus pericentrin.
+% GammaTub = 
 
 % imB = raw(:,:,3);
 % imBR = raw;

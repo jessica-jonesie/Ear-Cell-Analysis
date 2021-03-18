@@ -8,28 +8,31 @@ imR = Contrasted(:,:,1);
 imG = Contrasted(:,:,2);
 imB = Contrasted(:,:,3);
 
+imK{1} = imR;
 %% 
 % To segment the hair cells we will use the red channel. The next step is 
 % to apply a filter to reduce noise. We will compare a gaussian filter and a median 
 % filter.
 imMedian = medfilt2(imR,15.*[1 1]);
-
+imK{2} = imMedian;
 %% 
 % Notice how the illumination of each hair cell is different. To correct 
 % this the median filtered image was flat fielded. This requires blurring the 
 % image then subtracting the blurred image from the original. 
 imFlat = imflatfield(imMedian,100);
-
+imK{3} = imFlat;
 %% 
 % Of these flat-fielded images, the one that used sigma=100 gave the best 
 % balance between leveling the illumination and preserving shape. If we apply 
 % local contrasting again, the 
 imFlatCon = localcontrast(imFlat,0.7,0.7);
+imK{4} = imFlatCon;
 
 %% 
 % Finally the image can be adaptively thresholded to obtain a binary mask 
 % indicating the position of hair cells. 
 imBW = imbinarize(imFlatCon,0.2);
+imK{5} = imBW;
 
 %% 
 % Next we will apply a small binary close to solidify the cells followed 
@@ -40,9 +43,13 @@ imClose = imclose(imBW,strel('disk',2));
 imOpen = imopen(imClose,strel('disk',8));
 imDil = imdilate(imOpen,strel('disk',2));
 
+imK{6} = imClose;
+imK{7} = imOpen;
+imK{8} = imDil;
 
 % Omit Boundary Features from further analysis
 imDil = imclearborder(imDil);
+imK{9} =imDil;
 %% 
 % Next, the hair cells must be approximated as ellipses. To do this, the 
 % centroids of the binary regions in the mask that correspond to each cell are 
@@ -71,6 +78,8 @@ CellProps(omittedCells,:) = [];
 nHair = length(CellProps.Area);
 CellProps.ID = (1:nHair)';
 
+imK{10} = imDil;
+
 if EllipticalApproximation==true
     imEllipse = bwEllipse(size(imDil),CellProps.Centroid,CellProps.MajorAxisLength,CellProps.MinorAxisLength,CellProps.Orientation);
 else
@@ -93,6 +102,7 @@ ImDat.HairCellMask = imDil;
 ImDat.HairCellEllipseMask = imEllipse;
 ImDat.HairCellLabels = LabMask;
 ImDat.HairCellEllipseLabels = LabEllipse;
+ImDat.imK = imK;
 
 CellProps.Properties.VariableNames{6} = 'EllipseOrientation';
 

@@ -4,28 +4,36 @@ imB = localcontrast(RAW(:,:,3)); % Blue Channel contrasted;
 imG = localcontrast(RAW(:,:,2)); % Green Channel contrasted;
 imR = localcontrast(RAW(:,:,1)); % Red Channel contrasted;
 
-
+imK{1} = imG;
 [width,height,depth] = size(RAW);
 HairCellMask = ImDat.HairCellMask;
 % Subtract Hair Cells
 subHCells = uint8(double(imG).*double(~HairCellMask));
-
+imK{2} = subHCells;
 % Remove Stereociliary bundles. These bundles are brighter than anything 
 % else in the image. 
 imThresh = subHCells;
 imThresh(imThresh>50) = 0;
 imThresh = imadjust(imThresh);
+imK{3} = imThresh;
 
 % Correct Background
 imMedian = medfilt2(imThresh,5.*[1 1]);
+imK{4} = imMedian;
+
 imFlat = localcontrast(imflatfield(imMedian,20),1.0,0.5);
+imK{5} = imFlat;
 
 % Refine edges
 imBW = imbinarize(imFlat,0.3);
+imK{6} = imBW;
+
 imOpen = imerode(imBW,strel('disk',1));
+imK{7}= imOpen;
 
 % Invert
 imInvert = ~imOpen;
+imK{8} = imInvert;
 
 %% Watershedding
 D = -bwdist(~imInvert);
@@ -36,22 +44,29 @@ Ld2 = watershed(D2);
 imShed = imInvert;
 imShed(Ld2==0) = 0;
 imShed = ~imShed;
+imK{9} = imShed;
 
 % Erode and make uniform boundaries;
 imSkel = bwmorph(imShed,'thin',inf);
+imK{10} = imSkel;
+
 imBounds = bwareaopen(imdilate(imSkel,strel('disk',1)),200);
+imK{11} = imBounds;
 
 %% Refine with morphological thresholding
 imReg = ~imBounds;
 sizeRef = bwpropfilt(imReg,'Area',[100 1000]);
+imK{12} = sizeRef;
 
 % Reapply hair cell removal
 imRegHRem = imdilate(bwmorph(HairCellMask,'thin',inf),strel('disk',1));
 addHoles2Hair = logical(sizeRef.*~imRegHRem);
 typeRef = bwpropfilt(addHoles2Hair,'EulerNumber',[1 1]);
+imK{13} = typeRef;
 
 % Omit boundary features from further analysis
 typeRef = imclearborder(typeRef);
+imK{14} = typeRef;
 
 %% Compute properties of Cells
 CellProps = bwcompprops(typeRef);
@@ -72,7 +87,7 @@ else
     MaskIms = labelSeparate(typeRef,LabMask,'mask');
 end
 
-
+ImDat.imK = imK;
 
 %% Save
 

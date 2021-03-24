@@ -1,4 +1,4 @@
-function [refMagnitude,refAngle,aveX,aveY] = pt2ptInfluence(respPts,refPts)
+function [refMagnitude,refAngle,aveX,aveY] = pt2ptInfluenceDev(respPts,refPts)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 

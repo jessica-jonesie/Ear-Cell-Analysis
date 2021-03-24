@@ -1,5 +1,14 @@
 addpath('Sourced Functions')
 %%
+
+% Gamma Tubulin
+% RAW = imread('GammaTub_02_merge_cropped.png');
+% HCells = ~imread('GammaTub_02_merge_cropped_HairCells.bmp');
+% Bounds = imread('GammaTub_02_merge_cropped_Bounds_Skel.bmp');
+% NotCells = ~imread('GammaTub_02_merge_cropped_NotCells.bmp');
+% BasalBodies = ~imread('GammaTub_02_merge_cropped_BB.bmp');
+
+% Pericentrin Labeled
 RAW = imread('GammaTub_02_merge_cropped.png');
 HCells = ~imread('GammaTub_02_merge_cropped_HairCells.bmp');
 Bounds = imread('GammaTub_02_merge_cropped_Bounds_Skel.bmp');

@@ -32,7 +32,7 @@ for n = 1:nCells
 
     imK{7} =imBB{n};
     
-    montage(imK)
+%     montage(imK)
 end
 
 CellProps = BBOrient(CellProps,imBB,'BB');

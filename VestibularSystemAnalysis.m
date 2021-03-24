@@ -49,7 +49,7 @@ CellProps = CombineBBAndFont(CellProps,90);
 
 CellProps = CorrectPolarity(CellProps); 
 
-% Identify the utricular boundary. 
+% Identify the utricular boundary and calculate reference angles. 
 tic
 [CellProps,BoundPts,ImDat.ImBound] = SelectUtricleBoundary(RAW,CellProps,'CloseFactor',2); 
 toc

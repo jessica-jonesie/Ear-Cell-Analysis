@@ -1,6 +1,37 @@
-function [CellProps,ImDat] = SelectHairCell(RAW,EllipticalApproximation)
+function [CellProps,ImDat] = SelectHairCell(RAW,varargin)
 %SELECTHAIRCELL Summary of this function goes here
 %   Detailed explanation goes here
+%% Parse Inputs
+p = inputParser;
+
+addRequired(p,'RAW',@isnumeric)
+addParameter(p,'Channel','R',@ischar)
+addParameter(p,'MedFilt',15,@isnumeric)
+addParameter(p,'FlatField',100,@isnumeric)
+addParameter(p,'LocalCon',[0.7 0.7],@isnumeric)
+addParameter(p,'BWThresh',0.2,@isnumeric)
+addParameter(p,'CloseRad',2,@isnumeric)
+addParameter(p,'OpenRad',8,@isnumeric)
+addParameter(p,'DilateRad',2,@isnumeric)
+addParameter(p,'ClearBorder',true,@islogical)
+addParameter(p,'MinAvgInt',20,@isnumeric)
+addParameter(p,'EllipApprox',true,@islogical);
+
+parse(p,RAW,varargin{:});
+
+Channel = p.Results.Channel;
+MedFilt = p.Results.MedFilt;
+FlatField = p.Results.FlatField;
+LocalCon = p.Results.LocalCon;
+BWThresh = p.Results.BWThresh;
+CloseRad = p.Results.CloseRad;
+OpenRad = p.Results.OpenRad;
+DilateRad = p.Results.DilateRad;
+ClearBorder= p.Results.ClearBorder;
+MinAvgInt = p.Results.MinAvgInt;
+EllipApprox = p.Results.EllipApprox;
+
+%%
 Contrasted = localcontrast(RAW);
 
 % Next separate the channels
@@ -8,30 +39,39 @@ imR = Contrasted(:,:,1);
 imG = Contrasted(:,:,2);
 imB = Contrasted(:,:,3);
 
-imK{1} = imR;
+switch Channel
+    case 'R'
+        imCells = imR;
+    case 'G'
+        imCells = imG;
+    case 'B'
+        imCells = imB;
+end
+
+imK{1} = imCells;
 %% 
 % To segment the hair cells we will use the red channel. The next step is 
 % to apply a filter to reduce noise. We will compare a gaussian filter and a median 
 % filter.
-imMedian = medfilt2(imR,15.*[1 1]);
+imMedian = medfilt2(imCells,MedFilt.*[1 1]);
 imK{2} = imMedian;
 %% 
 % Notice how the illumination of each hair cell is different. To correct 
 % this the median filtered image was flat fielded. This requires blurring the 
 % image then subtracting the blurred image from the original. 
-imFlat = imflatfield(imMedian,100);
+imFlat = imflatfield(imMedian,FlatField);
 imK{3} = imFlat;
 %% 
 % Of these flat-fielded images, the one that used sigma=100 gave the best 
 % balance between leveling the illumination and preserving shape. If we apply 
 % local contrasting again, the 
-imFlatCon = localcontrast(imFlat,0.7,0.7);
+imFlatCon = localcontrast(imFlat,LocalCon(1),LocalCon(2));
 imK{4} = imFlatCon;
 
 %% 
 % Finally the image can be adaptively thresholded to obtain a binary mask 
 % indicating the position of hair cells. 
-imBW = imbinarize(imFlatCon,0.2);
+imBW = imbinarize(imFlatCon,BWThresh);
 imK{5} = imBW;
 
 %% 
@@ -39,16 +79,18 @@ imK{5} = imBW;
 % by a larger binary open to remove small pixel noise. Finally, a small dilation 
 % will be applied to make sure that the selection includes the entire hair cells. 
 
-imClose = imclose(imBW,strel('disk',2));
-imOpen = imopen(imClose,strel('disk',8));
-imDil = imdilate(imOpen,strel('disk',2));
+imClose = imclose(imBW,strel('disk',CloseRad));
+imOpen = imopen(imClose,strel('disk',OpenRad));
+imDil = imdilate(imOpen,strel('disk',DilateRad));
 
 imK{6} = imClose;
 imK{7} = imOpen;
 imK{8} = imDil;
 
 % Omit Boundary Features from further analysis
-imDil = imclearborder(imDil);
+if ClearBorder
+    imDil = imclearborder(imDil);
+end
 imK{9} =imDil;
 %% 
 % Next, the hair cells must be approximated as ellipses. To do this, the 
@@ -60,7 +102,7 @@ CellProps = bwcompprops(imDil);
 %% Add a few additional descriptors to the CellProps table
 nHair = length(CellProps.Area);
 CellProps.ID = (1:nHair)';
-CellProps.AvgIntensityR = cell2mat(struct2cell(regionprops(imDil,imR,'MeanIntensity')))';
+CellProps.AvgIntensityR = cell2mat(struct2cell(regionprops(imDil,imCells,'MeanIntensity')))';
 CellProps.AvgIntensityG = cell2mat(struct2cell(regionprops(imDil,imG,'MeanIntensity')))';
 CellProps.AvgIntensityB = cell2mat(struct2cell(regionprops(imDil,imB,'MeanIntensity')))';
 
@@ -70,8 +112,15 @@ pixIDs = struct2cell(regionprops(imDil,'PixelIdxList'));
 % Remove cells that have an average intensity less than some predefined
 % threshold.
 CellProps.PixIDs = pixIDs';
+switch Channel
+    case 'R'
+        omittedCells = CellProps.ID(CellProps.AvgIntensityR<MinAvgInt);
+    case 'G'
+        omittedCells = CellProps.ID(CellProps.AvgIntensityG<MinAvgInt);
+    case 'B'
+        omittedCells = CellProps.ID(CellProps.AvgIntensityB<MinAvgInt);
+end
 
-omittedCells = CellProps.ID(CellProps.AvgIntensityR<20);
 omittedPixels = cell2mat(pixIDs(omittedCells));
 imDil(omittedPixels(:)) = 0;
 CellProps(omittedCells,:) = [];
@@ -80,7 +129,7 @@ CellProps.ID = (1:nHair)';
 
 imK{10} = imDil;
 
-if EllipticalApproximation==true
+if EllipApprox==true
     imEllipse = bwEllipse(size(imDil),CellProps.Centroid,CellProps.MajorAxisLength,CellProps.MinorAxisLength,CellProps.Orientation);
 else
     imEllipse = imDil;
@@ -95,7 +144,7 @@ end
 
 % Store Data
 ImDat.RAW = RAW;
-ImDat.Red = imR;
+ImDat.Red = imCells;
 ImDat.Blue = imB;
 ImDat.Green = imG;
 ImDat.HairCellMask = imDil;
@@ -109,13 +158,13 @@ CellProps.Properties.VariableNames{6} = 'EllipseOrientation';
 CellProps.Type = repmat('H',[nHair 1]);
 
 CellProps.CellIm = labelSeparate(RAW,LabEllipse,'mask')';
-CellProps.CellImRed = labelSeparate(imR,LabEllipse,'mask')';
+CellProps.CellImRed = labelSeparate(imCells,LabEllipse,'mask')';
 CellProps.CellImGreen = labelSeparate(imG,LabEllipse,'mask')';
 CellProps.CellImBlue = labelSeparate(imB,LabEllipse,'mask')';
 CellProps.CellMaskEllipse = labelSeparate(imEllipse,LabEllipse,'mask')';
 
 
-if EllipticalApproximation==true
+if EllipApprox==true
     CellProps.CellMask = CellProps.CellMaskEllipse;
 else
     CellProps.CellMask = labelSeparate(imDil,LabMask,'mask')';

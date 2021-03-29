@@ -27,7 +27,7 @@ hold on
 plot(respts(:,1),respts(:,2),'.b')
 ax = gca;
 
-[refMagnitude,refAngle,aveX,aveY] = pt2ptInfluence(respts,refline);
+[refMagnitude,refAngle,aveX,aveY] = pt2ptInfluence(respts,refline,'none');
 
 unitX = cosd(refAngle);
 unitY = sind(refAngle);

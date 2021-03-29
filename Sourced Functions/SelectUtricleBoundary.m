@@ -31,27 +31,34 @@ CloseFactor = p.Results.CloseFactor;
 %%
 % contrast
 Contrasted = localcontrast(RAW);
+imK{1} = Contrasted;
 
 % Convert to grayscale
 Gray = rgb2gray(Contrasted);
+imK{2} = Gray;
 
 % Even illumination;
 imFlat = imadjust(imflatfield(Gray,1));
-
+imK{3} = imFlat;
 % Blur
 imMedian = imadjust(medfilt2(imFlat,100.*[1 1],'symmetric'));
+imK{4} = imMedian;
 
 % Blur Again to smooth boundary
 imGauss = imadjust(imgaussfilt(imFlat,60));
+imK{5} = imGauss;
 
 % Threshold
 imThresh = imGauss>=200;
+imK{6} = imThresh;
 
 % Fill small holes
 imClose = imclose(imThresh,strel('disk',CloseFactor*round(numel(RAW)/2e4)));
+imK{7} = imClose;
 
 % Convert to single pixel boundary;
 imBound = bwmorph(imClose,'remove');
+imK{8}=imBound;
 
 % Delete boundary pixels
 imBound(:,1) = 0;
@@ -69,7 +76,7 @@ if smooth>0
    end
 
 %% Display Results
-[~,CellProps.RefAngle] = pt2ptInfluence(CellProps.Centroid,BoundPts,'inverse',2);
+[~,CellProps.RefAngle] = pt2ptInfluence(CellProps.Centroid,BoundPts,'none');
 
 
 CellProps.PixID = pts2pix(fliplr(CellProps.Centroid),size(imClose));

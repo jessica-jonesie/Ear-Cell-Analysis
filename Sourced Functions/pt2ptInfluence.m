@@ -72,9 +72,13 @@ switch TransformType
     case 'none'
         [mindists,minI] = min(pt2ptDist');
         refAngle = pt2ptAng(minI)';
+        minpts = refPts(minI',:);
+        xcomps = minpts(:,1)-respPts(:,1);
+        ycomps = minpts(:,2)-respPts(:,2);
+        refAngle = atan2d(ycomps,xcomps);
         refMagnitude = ones(length(refAngle),1);
-        aveX = cosd(refAngle);
-        aveY = sind(refAngle);
+        aveX = xcomps;
+        aveY = ycomps;
         
 end
 

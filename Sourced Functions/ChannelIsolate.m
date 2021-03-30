@@ -19,13 +19,15 @@ if ~isa(image,'uint8')
     error('Input must be an RGB image')
 end
 
-switch channel
-    case 'red'
-        imageOut = imsubtract(imsubtract(r,b),g);
-    case 'green'
-        imageOut = imsubtract(imsubtract(g,r),b);
-    case 'blue'
-        imageOut = imsubtract(imsubtract(b,g),r);
+
+if ismember(channel,{'R','red'})
+    imageOut = imsubtract(imsubtract(r,b),g);
+elseif ismember(channel,{'B','blue'})
+    imageOut = imsubtract(imsubtract(b,r),g);
+elseif ismember(channel,{'G','green'})
+    imageOut = imsubtract(imsubtract(g,b),r);
+else
+    error('Invalid channel Identifier')
 end
 
 end

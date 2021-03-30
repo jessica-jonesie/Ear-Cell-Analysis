@@ -1,4 +1,4 @@
-function [CellProps,BoundPts,imClose] = SelectUtricleBoundary(RAW,CellProps,varargin)
+function [CellProps,BoundPts,imClose,imK] = SelectUtricleBoundary(RAW,CellProps,varargin)
 %SELECTUTRICLEBOUNDARY finds the boundary of the Utricle. 
 %   [CellProps,BoundPts] = SELECTUTRICLEBOUNDARY(RAW,CellProps) compute the
 %   utricular boundary given a RAW full color image and a table of Cell
@@ -22,12 +22,23 @@ addRequired(p,'RAW');
 addRequired(p,'CellProps');
 
 addParameter(p,'Smooth',0,@isnumeric);
-addParameter(p,'CloseFactor',1,@isnumeric);
+addParameter(p,'CloseRad',1,@isnumeric);
+addParameter(p,'MedFilt',100,@isnumeric);
+addParameter(p,'GaussFilt',60,@isnumeric);
+addParameter(p,'BWThresh',200,@isnumeric);
+addParameter(p,'RefAngType','inverse',@ischar);
+addParameter(p,'RefAngParams',2,@isnumeric);
 
 parse(p,RAW,CellProps,varargin{:})
 
 smooth = p.Results.Smooth;
-CloseFactor = p.Results.CloseFactor;
+CloseRad = p.Results.CloseFactor;
+MedFiltR = p.Results.MedFilt;
+GaussFilt = p.Results.GaussFilt;
+BWThresh = p.Results.BWThresh;
+RefAngType = p.Results.RefAngType;
+RefAngParams = p.Results.Params;
+
 %%
 % contrast
 Contrasted = localcontrast(RAW);
@@ -41,19 +52,19 @@ imK{2} = Gray;
 imFlat = imadjust(imflatfield(Gray,1));
 imK{3} = imFlat;
 % Blur
-imMedian = imadjust(medfilt2(imFlat,100.*[1 1],'symmetric'));
+imMedian = imadjust(medfilt2(imFlat,MedFiltR.*[1 1],'symmetric'));
 imK{4} = imMedian;
 
 % Blur Again to smooth boundary
-imGauss = imadjust(imgaussfilt(imFlat,60));
+imGauss = imadjust(imgaussfilt(imFlat,GaussFilt));
 imK{5} = imGauss;
 
 % Threshold
-imThresh = imGauss>=200;
+imThresh = imGauss>=BWThresh;
 imK{6} = imThresh;
 
 % Fill small holes
-imClose = imclose(imThresh,strel('disk',CloseFactor*round(numel(RAW)/2e4)));
+imClose = imclose(imThresh,strel('disk',CloseRad*round(numel(RAW)/2e4)));
 imK{7} = imClose;
 
 % Convert to single pixel boundary;
@@ -76,7 +87,7 @@ if smooth>0
    end
 
 %% Display Results
-[~,CellProps.RefAngle] = pt2ptInfluence(CellProps.Centroid,BoundPts,'none');
+[~,CellProps.RefAngle] = pt2ptInfluence(CellProps.Centroid,BoundPts,RefAngType,RefAngParams);
 
 
 CellProps.PixID = pts2pix(fliplr(CellProps.Centroid),size(imClose));

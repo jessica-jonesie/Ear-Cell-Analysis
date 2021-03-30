@@ -20,7 +20,7 @@ RAW = imread(strcat(imagename,'.png'));
 % [HairCellProps,ImDat] = SelectHairCellAlt(RAW,EllipticalApproximation);
 
 % Compute the hair cell orientation based on basal body position.
-[HairCellProps] = OrientHairCell_BB(HairCellProps,'blue');
+[HairCellProps] = OrientHairCell_BB(HairCellProps,'Channel','B');
 
 % Compute the hair cell orientation based on fonticulus position.
 [HairCellProps] = OrientHairCell_Fonticulus(HairCellProps);
@@ -29,7 +29,7 @@ RAW = imread(strcat(imagename,'.png'));
 [SupportCellProps,ImDat] = SelectSupportCell(RAW,ImDat,EllipticalApproximation);
 
 % Compute support cell orientation based upon basal body position.
-[SupportCellProps] = OrientSupportCell_BB(SupportCellProps,'blue');
+[SupportCellProps] = OrientSupportCell_BB(SupportCellProps,'Channel','B');
 
 % Add empty values for orientation/polarity values base upon fonticulus
 % postion to the Support Cell data structure.

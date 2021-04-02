@@ -50,31 +50,53 @@ supportFreq = supportCounts./sum(supportCounts);
 
 maxFreq = max([comboFreq hairFreq supportFreq]);
 
+
+
 figure
 s1=subplot(1,3,1);
-h1=histogram(CellProps.CombinedPolarity,nbins);
+curdat = CellProps.CombinedPolarity;
+reps = 200;
+lwd=2
+
+h1=histogram(curdat,nbins);
 h1.Normalization = 'probability';
 title('Combined');
 h1.FaceColor = 'm';
 xlabel('Magnitude of Polarity')
 ylim([0 maxFreq*1.1]);
+[NullP,~,NullX]=NullPolarity(curdat,nbins,reps);
+hold on
+plot(NullX,NullP,'-k','LineWidth',lwd)
+hold off
 
 
 s2=subplot(1,3,2);
-h2=histogram(CellProps.CombinedPolarity(CellProps.Type=='H'),nbins);
+curdat = CellProps.CombinedPolarity(CellProps.Type=='H');
+h2=histogram(curdat,nbins);
 h2.Normalization = 'probability';
 h2.FaceColor = 'r';
 title('Hair Cells');
 xlabel('Magnitude of Polarity')
 ylim([0 maxFreq*1.1]);
+[NullP,~,NullX]=NullPolarity(curdat,nbins,reps);
+hold on
+plot(NullX,NullP,'-k','LineWidth',lwd)
+hold off
+
 
 s3=subplot(1,3,3);
-h3=histogram(CellProps.CombinedPolarity(CellProps.Type=='S'),nbins);
+curdat = CellProps.CombinedPolarity(CellProps.Type=='S');
+h3=histogram(curdat,nbins);
 h3.Normalization = 'probability';
 h3.FaceColor = 'c';
 title('Support Cells');
 xlabel('Magnitude of Polarity')
 ylim([0 maxFreq*1.1]);
+[NullP,~,NullX]=NullPolarity(curdat,nbins,reps);
+hold on
+plot(NullX,NullP,'-k','LineWidth',lwd)
+hold off
+
 
 maxFreq = max([h1.Values h2.Values h3.Values])*1.1;
 s1.YLim = [0 maxFreq];
@@ -86,3 +108,13 @@ sgtitle('Magnitude of Polarity Distribution')
 
 end
 
+function [NullMean,NullSD,nullx,NullCounts] = NullPolarity(data,nbins,reps)
+    for k =1:reps
+        ndatapts = length(data);
+        RandData = sqrt(rand(1,ndatapts)); % Null probability
+        [NullCounts(k,:),edges]=histcounts(RandData,nbins,'Normalization','Probability');
+    end
+    nullx = edges(1:end-1)+(diff(edges)/2);
+    NullMean = mean(NullCounts);
+    NullSD = std(NullCounts);
+end

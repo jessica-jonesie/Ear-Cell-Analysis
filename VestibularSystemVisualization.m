@@ -21,8 +21,8 @@ OrientationVectorOverlay(CellProps,BoundPts,ImDat,'Scaling','BB','ScaleValue',0)
 
 [CDF,x] = CDFPlot(CellProps,'Orientation','xy','none');
 
-% OrientationMaps(CellProps,ImDat,clrMap);
-% PolarityMaps(CellProps,ImDat,clrMap);
+OrientationMaps(CellProps,ImDat,clrMap);
+PolarityMaps(CellProps,ImDat,clrMap);
 
 %% Statistics
 [combinedX,intCDFs] = InterpCDFs(x,CDF);
@@ -41,7 +41,7 @@ DistType ={'E','E','E','T'}; % Is the distribution empirical or theoretical.
 CellProps.DblAngOrientation = DblAngTransform(CellProps.NormOrientation,'deg');
 
 figure
-DblAngPlot(CellProps.NormOrientation,'deg',36)
+DblAngPlot(CellProps.NormOrientation(CellProps.Type=='Hair'),'deg',36)
 
 AngsCombo = CellProps.DblAngOrientation;
 AngsHair = CellProps.DblAngOrientation(CellProps.Type=='Hair');

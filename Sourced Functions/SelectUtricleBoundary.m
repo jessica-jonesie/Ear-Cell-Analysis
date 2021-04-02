@@ -32,12 +32,12 @@ addParameter(p,'RefAngParams',2,@isnumeric);
 parse(p,RAW,CellProps,varargin{:})
 
 smooth = p.Results.Smooth;
-CloseRad = p.Results.CloseFactor;
+CloseRad = p.Results.CloseRad;
 MedFiltR = p.Results.MedFilt;
 GaussFilt = p.Results.GaussFilt;
 BWThresh = p.Results.BWThresh;
 RefAngType = p.Results.RefAngType;
-RefAngParams = p.Results.Params;
+RefAngParams = p.Results.RefAngParams;
 
 %%
 % contrast

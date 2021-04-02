@@ -51,7 +51,7 @@ CellProps = CorrectPolarity(CellProps);
 
 % Identify the utricular boundary and calculate reference angles. 
 tic
-[CellProps,BoundPts,ImDat.ImBound] = SelectUtricleBoundary(RAW,CellProps,'CloseFactor',2); 
+[CellProps,BoundPts,ImDat.ImBound] = SelectUtricleBoundary(RAW,CellProps,'CloseRad',2); 
 toc
 
 % Normalize orientations with respect to the Utricular Boundary. 

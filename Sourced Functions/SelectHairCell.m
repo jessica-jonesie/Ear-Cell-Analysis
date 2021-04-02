@@ -10,12 +10,13 @@ addParameter(p,'MedFilt',15,@isnumeric)
 addParameter(p,'FlatField',100,@isnumeric)
 addParameter(p,'LocalCon',[0.7 0.7],@isnumeric)
 addParameter(p,'BWThresh',0.2,@isnumeric)
-addParameter(p,'CloseRad',2,@isnumeric)
-addParameter(p,'OpenRad',8,@isnumeric)
+addParameter(p,'CloseRad',3,@isnumeric)
+addParameter(p,'OpenRad',6,@isnumeric)
 addParameter(p,'DilateRad',2,@isnumeric)
 addParameter(p,'ClearBorder',true,@islogical)
 addParameter(p,'MinAvgInt',20,@isnumeric)
 addParameter(p,'EllipApprox',true,@islogical);
+addParameter(p,'Suppress',false,@islogical);
 
 parse(p,RAW,varargin{:});
 
@@ -30,6 +31,7 @@ DilateRad = p.Results.DilateRad;
 ClearBorder= p.Results.ClearBorder;
 MinAvgInt = p.Results.MinAvgInt;
 EllipApprox = p.Results.EllipApprox;
+Suppress = p.Results.Suppress;
 
 %%
 Contrasted = localcontrast(RAW);
@@ -121,7 +123,12 @@ switch Channel
         omittedCells = CellProps.ID(CellProps.AvgIntensityB<MinAvgInt);
 end
 
-omittedPixels = cell2mat(pixIDs(omittedCells));
+try
+    omittedPixels = cell2mat(pixIDs(omittedCells));
+catch
+    omittedPixels = cell2mat(pixIDs(omittedCells)');
+end
+
 imDil(omittedPixels(:)) = 0;
 CellProps(omittedCells,:) = [];
 nHair = length(CellProps.Area);
@@ -153,6 +160,7 @@ ImDat.HairCellLabels = LabMask;
 ImDat.HairCellEllipseLabels = LabEllipse;
 ImDat.imK = imK;
 
+if ~Suppress
 CellProps.Properties.VariableNames{6} = 'EllipseOrientation';
 
 CellProps.Type = repmat('H',[nHair 1]);
@@ -168,6 +176,7 @@ if EllipApprox==true
     CellProps.CellMask = CellProps.CellMaskEllipse;
 else
     CellProps.CellMask = labelSeparate(imDil,LabMask,'mask')';
+end
 end
 
 end

@@ -18,9 +18,9 @@ end
 
 switch Variable
     case 'Polarity'
-        nullc = cx;
-        nullh = hx;
-        nulls = sx;
+        nullc = cx.^2;
+        nullh = hx.^2;
+        nulls = sx.^2;
     case 'Orientation'
         nullc = (cx+180)./(360);
         nullh = (hx+180)./(360);

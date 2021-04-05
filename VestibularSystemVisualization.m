@@ -19,13 +19,15 @@ CellSelectionOverlay(ImDat)
 
 OrientationVectorOverlay(CellProps,BoundPts,ImDat,'Scaling','BB','ScaleValue',0);
 
-[CDF,x] = CDFPlot(CellProps,'Orientation','xy','none');
+[CDFO,xO] = CDFPlot(CellProps,'Orientation','xy','none');
 
-OrientationMaps(CellProps,ImDat,clrMap);
-PolarityMaps(CellProps,ImDat,clrMap);
+
+
+% OrientationMaps(CellProps,ImDat,clrMap);
+% PolarityMaps(CellProps,ImDat,clrMap);
 
 %% Statistics
-[combinedX,intCDFs] = InterpCDFs(x,CDF);
+[combinedX,intCDFs] = InterpCDFs(xO,CDFO);
 interpCDFPlot(combinedX,intCDFs,'polar');
 
 % Kolmogorov Smirnov - Tests the null hypothesis that two populations are
@@ -33,7 +35,11 @@ interpCDFPlot(combinedX,intCDFs,'polar');
 % the same/similar. Note KS is not necessarily appropriate for circular
 % statistics.
 DistType ={'E','E','E','T'}; % Is the distribution empirical or theoretical.
-[KSResults] = KSStruct(x,CDF,DistType);
+[KSResultsOrientation] = KSStruct(xO,CDFO,DistType);
+
+% Polarity Stats
+[CDFP,xP] = CDFPlot(CellProps,'Polarity','xy','none');
+[KSResultsPolarity] = KSStruct(xP,CDFP,DistType);
 
 % For circular statistics note that the diametrically bimodal orientation
 % measurements must be first transformed using the double angle
@@ -95,38 +101,56 @@ svec.angle = CellProps.NormOrientation(SID)*pi/180;
 svec.magnitude = ones(sum(SID),1);
 
 % Compute AngleK stats 
+alpha = 0.01;
 Khh = AngleK(scales,hvec); % hair to hair
+[~,KhhMax,KhhMin] = AngleK_Env(scales,hvec,alpha);
 Kss = AngleK(scales,svec); % support to support
+[~,KssMax,KssMin] = AngleK_Env(scales,svec,alpha);
 Khs = AngleK(scales,hvec,svec); % Hair to support
+[~,KhsMax,KhsMin] = AngleK_Env(scales,hvec,alpha,svec);
 Ksh = AngleK(scales,svec,hvec); % support to hair.
-
+[~,KshMax,KshMin] = AngleK_Env(scales,svec,alpha,hvec);
 
 figure
+lwd = 1.5;
+ylims = [-0.6 0.6];
 subplot(2,2,1)
-plot(scales,Khh)
+plot(scales,Khh,'-b','LineWidth',lwd)
+hold on
+plot(scales,KhhMax,'--k',scales,KhhMin,'--k','LineWidth',lwd)
+yline(0,'-k')
 xlabel('Scale (pixels)');
 ylabel('Population Alignment')
 title('Hair Cell to Hair Cell')
-ylim([-1,1])
+ylim(ylims)
 
 subplot(2,2,2)
-plot(scales,Kss)
+plot(scales,Kss,'-b','LineWidth',lwd)
+hold on
+plot(scales,KssMax,'--k',scales,KssMin,'--k','LineWidth',lwd)
+yline(0,'-k')
 xlabel('Scale (pixels)');
 ylabel('Population Alignment')
 title('Support Cell to Support Cell')
-ylim([-1,1])
+ylim(ylims)
 
 subplot(2,2,3)
-plot(scales,Khs)
+plot(scales,Khs,'-b','LineWidth',lwd)
+hold on
+plot(scales,KhsMax,'--k',scales,KhsMin,'--k','LineWidth',lwd)
+yline(0,'-k')
 xlabel('Scale (pixels)');
 ylabel('Population Alignment')
 title('Hair Cell to Support Cell')
-ylim([-1,1])
+ylim(ylims)
 
 subplot(2,2,4)
-plot(scales,Khs)
+plot(scales,Ksh,'-b','LineWidth',lwd)
+hold on
+plot(scales,KshMax,'--k',scales,KshMin,'--k','LineWidth',lwd)
+yline(0,'-k')
 xlabel('Scale (pixels)');
 ylabel('Population Alignment')
 title('Support Cell to Hair Cell')
-ylim([-1,1])
+ylim(ylims)
 

@@ -1,4 +1,4 @@
-function [AngleK] = AngleK(scales,vecA,varargin)
+function [AngleK,alignment] = AngleK(scales,vecA,varargin)
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here.
 
@@ -27,15 +27,14 @@ scale = scales(r);
 % This function can be used to compute the alignment of each feature with
 % respect to neighbors at a given scale. 
 if nargin == 2
-    alignment = LocalAlignment(scale,Distances,[xcompA ycompA]);
+    alignment(:,r) = LocalAlignment(scale,Distances,[xcompA ycompA]);
 elseif nargin ==3
-    alignment = LocalAlignment(scale,Distances,[xcompA ycompA],[xcompB ycompB]);
+    alignment(:,r) = LocalAlignment(scale,Distances,[xcompA ycompA],[xcompB ycompB]);
 end
 
+end
 %% Average Alignment
 
-AngleK(r) = mean(alignment,'omitnan');
-end
-
+AngleK = mean(alignment,'omitnan');
 end
 

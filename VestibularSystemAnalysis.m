@@ -32,7 +32,7 @@ RAW = imread(strcat(imagename,'.png'));
 [SupportCellProps] = OrientSupportCell_BB(SupportCellProps,'Channel','B');
 
 % Add empty values for orientation/polarity values base upon fonticulus
-% postion to the Support Cell data structure.
+% position to the Support Cell data structure.
 SupportCellProps = addFonticulusVals(SupportCellProps);
 
 

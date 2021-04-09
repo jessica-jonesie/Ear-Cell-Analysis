@@ -21,8 +21,6 @@ OrientationVectorOverlay(CellProps,BoundPts,ImDat,'Scaling','BB','ScaleValue',0)
 
 [CDFO,xO] = CDFPlot(CellProps,'Orientation','xy','none');
 
-
-
 % OrientationMaps(CellProps,ImDat,clrMap);
 % PolarityMaps(CellProps,ImDat,clrMap);
 
@@ -102,15 +100,15 @@ svec.magnitude = ones(sum(SID),1);
 
 % Compute AngleK stats 
 alpha = 0.01;
-Khh = AngleK(scales,hvec); % hair to hair
+[Khh,Orihh] = AngleK(scales,hvec); % hair to hair
 [~,KhhMax,KhhMin] = AngleK_Env(scales,hvec,alpha);
-Kss = AngleK(scales,svec); % support to support
+[Kss,Oriss] = AngleK(scales,svec); % support to support
 [~,KssMax,KssMin] = AngleK_Env(scales,svec,alpha);
-Khs = AngleK(scales,hvec,svec); % Hair to support
-[~,KhsMax,KhsMin] = AngleK_Env(scales,hvec,alpha,svec);
-Ksh = AngleK(scales,svec,hvec); % support to hair.
-[~,KshMax,KshMin] = AngleK_Env(scales,svec,alpha,hvec);
-
+[Khs,Orihs] = AngleK(scales,hvec,svec); % Hair to support
+[~,KhsMax,KhsMin] = AngleK_Env(scales,hvec,alpha,'vecB',svec);
+[Ksh,Orish] = AngleK(scales,svec,hvec); % support to hair.
+[~,KshMax,KshMin] = AngleK_Env(scales,svec,alpha,'vecB',hvec);
+%%
 figure
 lwd = 1.5;
 ylims = [-0.6 0.6];
@@ -154,3 +152,121 @@ ylabel('Population Alignment')
 title('Support Cell to Hair Cell')
 ylim(ylims)
 
+%% Alignment histograms
+figure
+subplot(2,2,1)
+[HistMap] = HistogramMap(Orihh,'x',scales);
+xlabel('Alignment');
+ylabel('Scale(r)');
+title('Hair to Hair')
+subplot(2,2,2)
+[HistMap] = HistogramMap(Oriss,'x',scales);
+xlabel('Alignment');
+ylabel('Scale(r)');
+title('Support to Support')
+subplot(2,2,3)
+[HistMap] = HistogramMap(Orihs,'x',scales);
+xlabel('Alignment');
+ylabel('Scale(r)');
+title('Hair to Support')
+subplot(2,2,4)
+[HistMap] = HistogramMap(Orish,'x',scales);
+xlabel('Alignment');
+ylabel('Scale(r)');
+title('Support to Hair');
+%% If I randomize the support cell orientation what do the results like?
+svecrand = svec;
+svecrand.angle = rand(length(svec.angle),1)*pi*2-pi;
+
+subplot(2,2,1)
+[Kssrand,Orissrand] = AngleK(scales,svecrand);
+[HistMap] = HistogramMap(Orissrand,'x',scales);
+xlabel('Alignment');
+ylabel('Scale(r)');
+title({'Support to Support Cell','Randomized Support Orientation'})
+
+subplot(2,2,4)
+[Kshrand,Orishrand] = AngleK(scales,svecrand,hvec);
+[HistMap] = HistogramMap(Orishrand,'x',scales);
+xlabel('Alignment');
+ylabel('Scale(r)');
+title({'Support to Hair Cell','Randomized Support Orientation'})
+
+subplot(2,2,3)
+[Kshrand,Orihsrand] = AngleK(scales,hvec,svecrand);
+[HistMap] = HistogramMap(Orihsrand,'x',scales);
+xlabel('Alignment');
+ylabel('Scale(r)');
+title({'Hair to Support Cell','Randomized Support Orientation'})
+
+%
+[~,KshMax,KshMin] = AngleK_Env(scales,svecrand,alpha,'vecB',hvec);
+plot(scales,Kshrand,'-b','LineWidth',lwd)
+hold on
+plot(scales,KshMax,'--k',scales,KshMin,'--k','LineWidth',lwd)
+yline(0,'-k')
+xlabel('Scale (pixels)');
+ylabel('Population Alignment')
+title({'Support Cell to Hair Cell','Randomized Support Orientation'})
+ylim(ylims)
+
+%% alignment maps
+figure
+rind =1 ;
+circsz= 25;
+subplot(3,2,1)
+scatter(hvec.origin(:,2),hvec.origin(:,1),circsz,Orihh(:,rind),'filled');
+axis ij; axis image;
+cax=colorbar;
+ylabel(cax,sprintf('Alignment at \n r=%1.0f',scales(rind)));
+title('Hair:Hair')
+
+subplot(3,2,2)
+scatter(svec.origin(:,2),svec.origin(:,1),circsz,Oriss(:,rind),'filled');
+axis ij; axis image;
+cax=colorbar;
+ylabel(cax,sprintf('Alignment at \n r=%1.0f',scales(rind)));
+title('Support:Support')
+
+subplot(3,2,3)
+scatter(hvec.origin(:,2),hvec.origin(:,1),circsz,Orihs(:,rind),'filled');
+axis ij; axis image;
+cax=colorbar;
+ylabel(cax,sprintf('Alignment at \n r=%1.0f',scales(rind)));
+title('Hair:Support')
+
+subplot(3,2,4)
+scatter(svec.origin(:,2),svec.origin(:,1),circsz,Orish(:,rind),'filled');
+axis ij; axis image;
+cax=colorbar;
+ylabel(cax,sprintf('Alignment at \n r=%1.0f',scales(rind)));
+title('Support:Hair')
+
+subplot(3,2,5)
+scatter(hvec.origin(:,2),hvec.origin(:,1),circsz,Orihsrand(:,rind),'filled');
+axis ij; axis image;
+cax=colorbar;
+ylabel(cax,sprintf('Alignment at \n r=%1.0f',scales(rind)));
+title('Hair:SupportRND')
+
+subplot(3,2,6)
+scatter(svec.origin(:,2),svec.origin(:,1),circsz,Orishrand(:,rind),'filled');
+axis ij; axis image;
+cax=colorbar;
+ylabel(cax,sprintf('Alignment at \n r=%1.0f',scales(rind)));
+title('SupportRND:Hair')
+
+
+%% Contamination tests
+% ConProps = CellProps;
+% 
+% nSupport = length(SID);
+% falseSupport = 16;
+% trueSupport = nSupport-falseSupport;
+% SupportUnifAngs = rand(trueSupport,1)*360-180;
+% HairAngs = ConProps.NormOrientation(HID);
+% FalseAngs = datasample(HairAngs,falseSupport);
+% TestAngs = [SupportUnifAngs; FalseAngs];
+% 
+% ph=polarhistogram(TestAngs*2*pi/360,28);
+% ph.Normalization = 'probability';

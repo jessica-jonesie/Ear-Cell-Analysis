@@ -1,4 +1,4 @@
-function [CroppedIms,MaskIms] = EllipseCrop(RawIm,EllipseProps)
+function [CroppedIms,MaskIms,pxrows,pxcols] = EllipseCrop(RawIm,EllipseProps)
 %ELLIPSECROP Crops elliptical regions from an image. 
 %   [CroppedIms] = EllipseCrop(RawIm,EllipseProps) produces separate
 %   cropped images of the elliptical regions with properties defined by
@@ -11,12 +11,12 @@ nEllipses = length(EllipseProps.Orientation);
 
 for n = 1:nEllipses
 
-    [CroppedIms{n} MaskIms{n}] = EllipseCropSingle(RawIm,EllipseProps(n,:));
+    [CroppedIms{n}, MaskIms{n}, pxrows{n}, pxcols{n}] = EllipseCropSingle(RawIm,EllipseProps(n,:));
 end
 
 end
 
-function [CroppedIm,CropMask] = EllipseCropSingle(RawIm,EllipseProps)
+function [CroppedIm,CropMask,pxrows,pxcols] = EllipseCropSingle(RawIm,EllipseProps)
 [nrow, ncol, imD] = size(RawIm); 
     
 center = EllipseProps.Centroid;
@@ -29,6 +29,6 @@ mask = logical(mask);
 mask(:,:,2:3) = [];
 
 % CroppedIm = labelSeparate(RawIm,bwlabel(mask),'mask');
-[CroppedIm,CropMask] = Crop2Mask(RawIm,mask);
+[CroppedIm,CropMask,pxrows,pxcols] = Crop2Mask(RawIm,mask);
 end
 

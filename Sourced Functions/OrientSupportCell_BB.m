@@ -60,4 +60,5 @@ end
 end
 
 CellProps = BBOrient(CellProps,imBB,'BB');
+CellProps.imBB = imBB';
 end

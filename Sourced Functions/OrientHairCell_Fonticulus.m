@@ -93,5 +93,5 @@ end
 end
 
 CellProps = BBOrient(CellProps,morFilt4,'F');
-
+CellProps.imFont = morFilt4';
 end

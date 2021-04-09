@@ -3,6 +3,7 @@ function [nbins,binwidth] = FDBins(data)
 %   Detailed explanation goes here
 %% Set no. of bins
 % Get parameters to calculate Freedman-Diaconis
+data(isnan(data))=[]; % remove nans
 nObservations = length(data);
 IQR = iqr(data);
 maxObs = max(data);

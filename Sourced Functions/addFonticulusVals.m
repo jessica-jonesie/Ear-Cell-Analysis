@@ -14,6 +14,7 @@ if ~isempty(varargin)
     CellProps.FDistance = CellProps.BBDistance;
     CellProps.FEdgeDist = CellProps.BBEdgeDist;
     CellProps.FPolarity = CellProps.BBPolarity;
+    CellProps.imFont = imBB;
 else
     CellProps.FDetected = zeros(nCells,1);
     CellProps.FArea = NaN(nCells,1);
@@ -25,6 +26,7 @@ else
     CellProps.FDistance = NaN(nCells,1);
     CellProps.FEdgeDist = NaN(nCells,1);
     CellProps.FPolarity = NaN(nCells,1);
+    CellProps.imFont = cell(nCells,1);
 end
 end
 

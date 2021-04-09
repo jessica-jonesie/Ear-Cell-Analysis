@@ -80,10 +80,10 @@ CellProps.MinorAxisLength = CellProps.MinorAxisLength.*expansionFactor;
 %% Alternate
 
 if EllipticalApproximation==true
-    [CellIms,MaskIms] = EllipseCrop(RAW,CellProps);
+    [CellIms,MaskIms,pxrows,pxcols] = EllipseCrop(RAW,CellProps);
 else
     [LabMask,~] = bwlabel(typeRef);
-    CellIms = labelSeparate(RAW,LabMask,'mask');
+    [CellIms,~,pxrows,pxcols] = labelSeparate(RAW,LabMask,'mask');
     MaskIms = labelSeparate(typeRef,LabMask,'mask');
 end
 
@@ -103,6 +103,8 @@ CellProps.Properties.VariableNames{6} = 'EllipseOrientation';
 
 CellProps.Type = repmat('S',[nCells 1]);
 CellProps.CellIm = CellIms';
+CellProps.pxrows = pxrows';
+CellProps.pxcols = pxcols';
 
 for n = 1:nCells
     CellImRed{n} = CellProps.CellIm{n}(:,:,1);

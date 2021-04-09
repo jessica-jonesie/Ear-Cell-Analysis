@@ -165,7 +165,11 @@ CellProps.Properties.VariableNames{6} = 'EllipseOrientation';
 
 CellProps.Type = repmat('H',[nHair 1]);
 
-CellProps.CellIm = labelSeparate(RAW,LabEllipse,'mask')';
+[CellIms,~,pxrows,pxcols] = labelSeparate(RAW,LabEllipse,'mask');
+CellProps.CellIm = CellIms';
+CellProps.pxrows = pxrows';
+CellProps.pxcols = pxcols';
+
 CellProps.CellImRed = labelSeparate(imCells,LabEllipse,'mask')';
 CellProps.CellImGreen = labelSeparate(imG,LabEllipse,'mask')';
 CellProps.CellImBlue = labelSeparate(imB,LabEllipse,'mask')';

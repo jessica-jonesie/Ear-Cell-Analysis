@@ -61,6 +61,6 @@ if sum(imBB{n}(:))>0
 end
 
 end
-
 CellProps = BBOrient(CellProps,imBB,'BB');
+CellProps.imBB = imBB';
 end

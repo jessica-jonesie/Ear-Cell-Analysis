@@ -1,4 +1,4 @@
-function [SepIms,imMasks] = labelSeparate(im,labels,type,varargin)
+function [SepIms,imMasks,pxrows,pxcols] = labelSeparate(im,labels,type,varargin)
 %LABELSEPARATE Converts labeled portions of an image into separate images.
 %   [SepIms] = LABELSEPARATE(im,labels)uses the labels assigned to each
 %   pixel in the input image im to isolate the labeled portions of im into
@@ -13,6 +13,8 @@ nLabels = max(labels(:));
 
 SepIms = cell(1,nLabels);
 imMasks = cell(1,nLabels);
+pxrows = cell(1,nLabels);
+pxcols = cell(1,nLabels);
 [rowmax,colmax,~]=size(im);
 
 for k = 1:nLabels
@@ -20,8 +22,16 @@ for k = 1:nLabels
         case 'mask'
             MaskID = ismember(labels,k);
             [rows,cols] = find(MaskID);
-            MaskID = MaskID(min(rows):max(rows), min(cols):max(cols));
-            SingleIm = im(min(rows):max(rows), min(cols):max(cols),:);
+            
+            minrows = min(rows);
+            maxrows = max(rows);
+            rowrange = minrows:maxrows;
+            mincols = min(cols);
+            maxcols = max(cols);
+            colrange = mincols:maxcols;
+            
+            MaskID = MaskID(rowrange, colrange);
+            SingleIm = im(rowrange, colrange,:);
             if islogical(im)
                 SingleIm = logical(double(MaskID).*double(SingleIm));
             else
@@ -29,6 +39,8 @@ for k = 1:nLabels
             end
             
             SepIms{k} = SingleIm;
+            pxrows{k} = rowrange;
+            pxcols{k} = colrange;
         case 'crop'
             % Compute and save the masked version
             MaskID = ismember(labels,k);
@@ -71,6 +83,9 @@ for k = 1:nLabels
             imMasks{k} = logical(alphaIm);
             
             SepIms{k} = SingleIm;
+            pxrows{k} = finrowmin:finrowmax;
+            pxcols{k} = fincolmin:fincolmax;
+
     end
 end
 

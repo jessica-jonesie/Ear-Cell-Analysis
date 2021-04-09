@@ -1,4 +1,4 @@
-function [CroppedIm,cropmask] = Crop2Mask(Image,inMask)
+function [CroppedIm,cropmask,pxrows,pxcols] = Crop2Mask(Image,inMask)
 %CROP2MASK Crop an image to a region defined by a binary mask.
 
 nMasks = length(inMask);
@@ -17,9 +17,12 @@ if iscell(inMask)
     rowmax = max(rowmult(:));
     colmin = min(colmult(colmult~=0));
     colmax = max(colmult(:));
+    
+    pxrows = rowmin:rowmax;
+    pxcols = colmin:colmax;
 
-    cropraw = Image(rowmin:rowmax,colmin:colmax,:);
-    cropmask{k} = Mask(rowmin:rowmax,colmin:colmax);
+    cropraw = Image(pxrows,pxcols,:);
+    cropmask{k} = Mask(pxrows,pxcols);
 
     CroppedIm{k} = maskimage(cropraw,cropmask{k});
     end
@@ -37,8 +40,11 @@ rowmax = max(rowmult(:));
 colmin = min(colmult(colmult~=0));
 colmax = max(colmult(:));
 
-cropraw = Image(rowmin:rowmax,colmin:colmax,:);
-cropmask = Mask(rowmin:rowmax,colmin:colmax);
+pxrows = rowmin:rowmax;
+pxcols = colmin:colmax;
+
+cropraw = Image(pxrows,pxcols,:);
+cropmask = Mask(pxrows,pxcols);
 
 CroppedIm = maskimage(cropraw,cropmask);
 end

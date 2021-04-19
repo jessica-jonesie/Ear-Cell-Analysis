@@ -23,7 +23,17 @@ OrientationVectorOverlay(CellProps,BoundPts,ImDat,'Scaling','BB','ScaleValue',0)
 
 % OrientationMaps(CellProps,ImDat,clrMap);
 % PolarityMaps(CellProps,ImDat,clrMap);
-
+%% Polar plots
+xcomp = CellProps.CombinedPolarity.*cosd(CellProps.NormOrientation);
+ycomp = CellProps.CombinedPolarity.*sind(CellProps.NormOrientation);
+figure
+polarplot(CellProps.NormOrientation(CellProps.Type=='H')*2*pi/360,CellProps.CombinedPolarity(CellProps.Type=='H'),'sr','MarkerFaceColor','r')
+figure
+polarplot(CellProps.NormOrientation(CellProps.Type=='S')*2*pi/360,CellProps.CombinedPolarity(CellProps.Type=='S'),'oc','MarkerFaceColor','c')
+figure
+densityplot(xcomp(CellProps.Type=='H'),ycomp(CellProps.Type=='H'),'Edges',{-1:0.1:1; -1:0.1:1})
+axis equal
+axis tight
 %% Statistics
 [combinedX,intCDFs] = InterpCDFs(xO,CDFO);
 interpCDFPlot(combinedX,intCDFs,'polar');
@@ -45,11 +55,11 @@ DistType ={'E','E','E','T'}; % Is the distribution empirical or theoretical.
 CellProps.DblAngOrientation = DblAngTransform(CellProps.NormOrientation,'deg');
 
 figure
-DblAngPlot(CellProps.NormOrientation(CellProps.Type=='Hair'),'deg',36)
+DblAngPlot(CellProps.NormOrientation(CellProps.Type=='H'),'deg',36)
 
 AngsCombo = CellProps.DblAngOrientation;
-AngsHair = CellProps.DblAngOrientation(CellProps.Type=='Hair');
-AngsSupport = CellProps.DblAngOrientation(CellProps.Type=='Support');
+AngsHair = CellProps.DblAngOrientation(CellProps.Type=='H');
+AngsSupport = CellProps.DblAngOrientation(CellProps.Type=='S');
 % Rayleigh Test for Uniformity. Tests the null hypothesis that the input
 % distribution is uniform.
 RayPValue_Combo = RayleighTest(AngsCombo);
@@ -210,9 +220,9 @@ ylabel('Population Alignment')
 title({'Support Cell to Hair Cell','Randomized Support Orientation'})
 ylim(ylims)
 
-%% alignment maps
+%% alignment scatter maps
 figure
-rind =1 ;
+rind =5 ;
 circsz= 25;
 subplot(3,2,1)
 scatter(hvec.origin(:,2),hvec.origin(:,1),circsz,Orihh(:,rind),'filled');

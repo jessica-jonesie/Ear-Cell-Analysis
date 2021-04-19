@@ -1,4 +1,4 @@
-function [fig,ax,cax,sld] = DataMapSlider(x,yy,mask)
+function [DatMap,fig,ax,cax,sld] = DataMapSlider(x,yy,mask)
 %DATAMAPSLIDER slide through values of x and y-values (yy) corresponding to
 %each on the datamap (mask). 
 

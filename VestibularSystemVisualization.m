@@ -10,8 +10,20 @@ clrMap = 'RdYlBu';
 [file,path] = uigetfile('*.mat');
 load(fullfile(path,file));
 
-nanrows = isnan(CellProps.CombinedOrientation);
-CellProps(nanrows,:)=[];
+nanOri = isnan(CellProps.CombinedOrientation);
+nanPol = isnan(CellProps.CombinedPolarity);
+CellProps(nanOri|nanPol,:)=[];
+
+% Commonly used sets
+OrientH = CellProps.NormOrientation(CellProps.Type=='H');
+OrientS = CellProps.NormOrientation(CellProps.Type=='S');
+PolarH = CellProps.CombinedPolarity(CellProps.Type=='H');
+PolarS = CellProps.CombinedPolarity(CellProps.Type=='S');
+
+xcompH = PolarH.*cosd(OrientH);
+ycompH = PolarH.*sind(OrientH);
+xcompS = PolarS.*cosd(OrientS);
+ycompS = PolarS.*sind(OrientS);
 %% Display Results
 PolAndOriHistograms(CellProps,'Full')
 PolarityWeightedOrientationHist(CellProps);
@@ -23,15 +35,18 @@ OrientationVectorOverlay(CellProps,BoundPts,ImDat,'Scaling','BB','ScaleValue',0)
 
 % OrientationMaps(CellProps,ImDat,clrMap);
 % PolarityMaps(CellProps,ImDat,clrMap);
-%% Polar plots
-xcomp = CellProps.CombinedPolarity.*cosd(CellProps.NormOrientation);
-ycomp = CellProps.CombinedPolarity.*sind(CellProps.NormOrientation);
+%% Polar plots\Bullseye
+
 figure
-polarplot(CellProps.NormOrientation(CellProps.Type=='H')*2*pi/360,CellProps.CombinedPolarity(CellProps.Type=='H'),'sr','MarkerFaceColor','r')
+subplot(1,2,1)
+MyBullseye(OrientH,PolarH,'Units','degrees','Color','r')
+title('Hair')
+subplot(1,2,2)
+MyBullseye(OrientS,PolarS,'Units','degrees','Color','c')
+title('Support')
+
 figure
-polarplot(CellProps.NormOrientation(CellProps.Type=='S')*2*pi/360,CellProps.CombinedPolarity(CellProps.Type=='S'),'oc','MarkerFaceColor','c')
-figure
-densityplot(xcomp(CellProps.Type=='H'),ycomp(CellProps.Type=='H'),'Edges',{-1:0.1:1; -1:0.1:1})
+densityplot(xcompH,ycompH,'Edges',{-1:0.1:1; -1:0.1:1})
 axis equal
 axis tight
 %% Statistics
@@ -266,7 +281,39 @@ cax=colorbar;
 ylabel(cax,sprintf('Alignment at \n r=%1.0f',scales(rind)));
 title('SupportRND:Hair')
 
+%% Local Alignment Maps
+[maskH] = BuildMask(ImDat.HairCellMask,CellProps(CellProps.Type=='H',:));
+[maskS] = BuildMask(ImDat.HairCellMask,CellProps(CellProps.Type=='S',:));
+% [datmap,axH,labels] = DataMap(maskH,Orihh(:,rind),'Display',true);
+[DataMapHH,fig,ax,cax,sld]=DataMapSlider(scales,Orihh,maskH);
+title(ax,'Hair:Hair')
+[DataMapHS,fig,ax,cax,sld]=DataMapSlider(scales,Orihs,maskH);
+title(ax,'Hair:Support')
+[DataMapSS,fig,ax,cax,sld]=DataMapSlider(scales,Oriss,maskS);
+title(ax,'Support:Support')
+[DataMapSH,fig,ax,cax,sld]=DataMapSlider(scales,Orish,maskS);
+title(ax,'Support:Hair')
 
+%% Alignment Map Movie
+figure(1)
+vidname = strcat(file(1:end-4),'_Alignment','.mp4');
+vidfile = VideoWriter(strcat('Results/Videos/',vidname),'MPEG-4');
+vidfile.FrameRate = 2;
+open(vidfile);
+for k=1:length(DataMapHH)
+    subplot(2,2,1)
+    imagesc(DataMapHH{k})
+    subplot(2,2,2)
+    imagesc(DataMapHS{k})
+    subplot(2,2,3)
+    imagesc(DataMapSS{k})
+    subplot(2,2,4)
+    imagesc(DataMapSS{k})
+    drawnow
+    F(k) = getframe(gcf);
+    writeVideo(vidfile,F(k));
+end
+close(vidfile)
 %% Contamination tests
 % ConProps = CellProps;
 % 

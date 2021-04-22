@@ -7,7 +7,9 @@ function [SepIms,imMasks,pxrows,pxcols] = labelSeparate(im,labels,type,varargin)
 %
 %   Set type to 'mask' to apply the labels exactly. Set type to 'crop' to
 %   make the image cropped to a rectangle. With type set to crop, specify a
-%   4th argument to add a buffer around the rectangle. 
+%   4th argument to add a buffer around the rectangle.
+%
+%   See Also BWLABEL.
 
 nLabels = max(labels(:));
 

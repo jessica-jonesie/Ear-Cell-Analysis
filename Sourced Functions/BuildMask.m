@@ -1,4 +1,4 @@
-function [mask] = BuildMask(tgtIm,CellProps,varargin)
+function [mask,sepmasks] = BuildMask(tgtIm,CellProps,varargin)
 %BUILDMASK build a full mask knowing the pixel ids of features that make up
 %the mask.
 %   Detailed explanation goes here

@@ -28,6 +28,11 @@ RAW = imread(strcat(imagename,'.png'));
 % Identify the support cells in the image
 [SupportCellProps,ImDat] = SelectSupportCell(RAW,ImDat,EllipticalApproximation);
 
+% Filter out Support Cells that are not in contact with hair cells.
+[keptSupportCells,~,ImDat.SupportCellMask] = IsNeighbor(ImDat.SupportCellMask,ImDat.HairCellMask,7);
+SupportCellProps(~keptSupportCells,:)=[];
+SupportCellProps.ID=(1:height(SupportCellProps))';
+
 % Compute support cell orientation based upon basal body position.
 [SupportCellProps] = OrientSupportCell_BB(SupportCellProps,'Channel','B');
 

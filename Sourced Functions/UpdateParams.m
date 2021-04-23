@@ -1,5 +1,5 @@
-function [POut] = UpdateParams(PIn,LearningRate,varargin)
-%UNTITLED2 Summary of this function goes here
+function [POut,randdir] = UpdateParams(PIn,LearningRate,varargin)
+%UPDATEPARAMS Summary of this function goes here
 %   Detailed explanation goes here
 %% parse inputs
 p = inputParser;
@@ -69,7 +69,7 @@ end
 % Force nonnegative values if specified
 if length(ForcePos)==1
     if ForcePos
-        valuesOut(values<0) = 0;
+        valuesOut(valuesOut<0) = 0;
     end
 elseif length(ForcePos)==nvals
     ForcePos(ForcePos==true&&valuesOut<0) = 0;

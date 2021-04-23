@@ -2,39 +2,45 @@ addpath('Sourced Functions')
 %%
 
 % Gamma Tubulin
+RAW = imread('GammaTub_02_merge_cropped.png');
+HairCells = ~imread('GammaTub_02_merge_cropped_HairCells.bmp');
+CellBounds = imread('GammaTub_02_merge_cropped_Bounds_Skel.bmp');
+NotCells = ~imread('GammaTub_02_merge_cropped_NotCells.bmp');
+BasalBodies = ~imread('GammaTub_02_merge_cropped_BB.bmp');
+
+% Pericentrin Labeled
 % RAW = imread('GammaTub_02_merge_cropped.png');
 % HCells = ~imread('GammaTub_02_merge_cropped_HairCells.bmp');
 % Bounds = imread('GammaTub_02_merge_cropped_Bounds_Skel.bmp');
 % NotCells = ~imread('GammaTub_02_merge_cropped_NotCells.bmp');
 % BasalBodies = ~imread('GammaTub_02_merge_cropped_BB.bmp');
 
-% Pericentrin Labeled
-RAW = imread('GammaTub_02_merge_cropped.png');
-HCells = ~imread('GammaTub_02_merge_cropped_HairCells.bmp');
-Bounds = imread('GammaTub_02_merge_cropped_Bounds_Skel.bmp');
-NotCells = ~imread('GammaTub_02_merge_cropped_NotCells.bmp');
-BasalBodies = ~imread('GammaTub_02_merge_cropped_BB.bmp');
+[imx,imy] = size(HairCells);
 
-[imx,imy] = size(HCells);
+SupportCells = true(imx,imy)-HairCells-NotCells;
 
-SupportCells = true(imx,imy)-HCells-NotCells;
+%% New section
+HairCells =
+SupportCells =
+CellBounds =
+BasalBodies =
 
 %% Refine Cell Selections
 sdisk = strel('disk',1);
-Bounds = imdilate(Bounds,sdisk);
-HCells = HCells-Bounds;
-SupportCells = SupportCells-Bounds;
+CellBounds = imdilate(CellBounds,sdisk);
+HairCells = HairCells-CellBounds;
+SupportCells = SupportCells-CellBounds;
 
-Bounds(Bounds<0) = 0;
-HCells(HCells<0) = 0;
+CellBounds(CellBounds<0) = 0;
+HairCells(HairCells<0) = 0;
 SupportCells(SupportCells<0) = 0;
 
-Bounds = logical(Bounds);
-HCells = imclearborder(logical(HCells));
+CellBounds = logical(CellBounds);
+HairCells = imclearborder(logical(HairCells));
 SupportCells = imclearborder(logical(SupportCells));
 
 %% Extract Cell params
-[HairCellProps,ImDat] = GetPropsAndIms(BasalBodies,HCells);
+[HairCellProps,ImDat] = GetPropsAndIms(BasalBodies,HairCells);
 [HairCellProps] = BBOrient(HairCellProps,HairCellProps.Im,'BB');
 HairCellProps.Type = repmat('H',[height(HairCellProps) 1]);
 [SupportCellProps,ImDat] = GetPropsAndIms(BasalBodies,SupportCells);

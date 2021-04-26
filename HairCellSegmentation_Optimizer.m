@@ -1,14 +1,19 @@
-RAW = imread('Data\RAW.png');
-Control = ~imread('Data\RAW_HairCells.bmp');
+RAW = imread('Data\P12\P12_Utricle_RAW.png');
+Control = ~imread('Data\P12\P12_Utricle_HairCells.bmp');
 Control = imclearborder(Control);
 
-MedFilt=15;
-FlatField = 100;
-Thresh = 0.2;
-CLRads = 1:10;
-OPRads = 1:10;
-DILRads = 1:10;
-MinAvgI = 15;
+% DeRez for analysis
+scale =0.33;
+RAW = imresize(RAW,scale);
+Control = imresize(Control,scale);
+
+MedFilt=2:2:10;
+FlatField = 10:5:25;
+Thresh = 0.1:0.05:0.25;
+CLRads = 2:6;
+OPRads = 3:6;
+DILRads = 0:2;
+MinAvgI = [1 2 3];
 
 nsims = length(MedFilt)*length(FlatField)*length(Thresh)*length(CLRads)*...
     length(OPRads)*length(DILRads)*length(MinAvgI);
@@ -70,7 +75,8 @@ close(f)
 % Stats = SegCompare(Control,Test);
 
 %% Preview
-tgt = T(832,:);
+[val,ind]=max(T.F1Score);
+tgt = T(ind,:);
 [~,ImDat] = SelectHairCell(RAW,'MedFilt',tgt.MedFilt,...
                                 'FlatField',tgt.FlatField,...
                                 'BWThresh',tgt.Thresh,...
@@ -82,4 +88,4 @@ tgt = T(832,:);
                                 'Suppress',true);
 imshowpair(ImDat.HairCellMask,Control);
 
-ImDat = SelectHairCell(RAW);
+% ImDat = SelectHairCell(RAW);

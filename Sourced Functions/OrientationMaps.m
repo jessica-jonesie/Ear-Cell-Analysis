@@ -2,6 +2,7 @@ function [] = OrientationMaps(CellProps,ImDat,clrMap)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 %% Hair Cell Orientation
+figure
 data = CellProps.NormOrientation(CellProps.Type=='H');
 try
     bwIm = ImDat.HairCellMask;
@@ -19,18 +20,20 @@ ylabel(cbar,'Orientation with Respect to Utricular Boundary');
 title('Hair Cell Orientation')
 
 %% Hair Cell Orientation Blurred
+% figure
 % data = CellProps.NormOrientation(CellProps.Type=='H');
 % bwIm = ImDat.HairCellMask;
-
-[datmap,fH,axH] = DataMap(bwIm,abs(data),'Disk',70);
-colormap(flipud(brewermap([],clrMap)))
-cbar= colorbar;
-caxis([0 180])
-
-ylabel(cbar,'Orientation with Respect to Utricular Boundary');
-title('Hair Cell Orientation Blurred')
+% 
+% [datmap,fH,axH] = DataMap(bwIm,abs(data),'BlurType','Disk','BlurValue',70);
+% colormap(flipud(brewermap([],clrMap)))
+% cbar= colorbar;
+% caxis([0 180])
+% 
+% ylabel(cbar,'Orientation with Respect to Utricular Boundary');
+% title('Hair Cell Orientation Blurred')
 
 %% Support Cell Orientation
+figure
 data = CellProps.NormOrientation(CellProps.Type=='S');
 try
     bwIm = ImDat.SupportCellMask;
@@ -48,15 +51,16 @@ ylabel(cbar,'Orientation with Respect to Utricular Boundary');
 title('Support Cell Orientation')
 
 %% Support Cell Orientation
+% figure
 % data = CellProps.NormOrientation(CellProps.Type=='S');
 % bwIm = ImDat.SupportCellMask;
-
-[datmap,fH,axH] = DataMap(bwIm,abs(data),'Disk',70);
-colormap(flipud(brewermap([],clrMap)))
-cbar= colorbar;
-caxis([0 180])
-
-ylabel(cbar,'Orientation with Respect to Utricular Boundary');
-title('Support Cell Orientation Blurred')
+% 
+% [datmap,fH,axH] = DataMap(bwIm,abs(data),'BlurType','Disk','BlurValue',70);
+% colormap(flipud(brewermap([],clrMap)))
+% cbar= colorbar;
+% caxis([0 180])
+% 
+% ylabel(cbar,'Orientation with Respect to Utricular Boundary');
+% title('Support Cell Orientation Blurred')
 end
 

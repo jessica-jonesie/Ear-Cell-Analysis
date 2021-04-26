@@ -15,7 +15,7 @@ Props = bwcompprops(Mask);
 Props.Circularity = (4*pi*Props.Area)./(Props.Perimeter.^2);
 nImages = length(Props.Area);
 Props.ID = (1:nImages)';
-
+Props.PixIDs = struct2cell(regionprops(Mask,'PixelIdxList'))';
 
 
 [imEllipse,EllipseMasks] = bwEllipse(size(Mask),Props.Centroid,Props.MajorAxisLength,Props.MinorAxisLength,Props.Orientation);

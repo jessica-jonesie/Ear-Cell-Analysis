@@ -29,14 +29,15 @@ PolAndOriHistograms(CellProps,'Full')
 PolarityWeightedOrientationHist(CellProps);
 CellSelectionOverlay(ImDat)
 
-OrientationVectorOverlay(CellProps,BoundPts,ImDat,'Scaling','BB','ScaleValue',0);
+if exist('BoundPts','var')
+    OrientationVectorOverlay(CellProps,BoundPts,ImDat,'Scaling','BB','ScaleValue',0);
+end
 
 [CDFO,xO] = CDFPlot(CellProps,'Orientation','xy','none');
 
-% OrientationMaps(CellProps,ImDat,clrMap);
-% PolarityMaps(CellProps,ImDat,clrMap);
+OrientationMaps(CellProps,ImDat,clrMap);
+PolarityMaps(CellProps,ImDat,clrMap);
 %% Polar plots\Bullseye
-
 figure
 subplot(1,2,1)
 MyBullseye(OrientH,PolarH,'Units','degrees','Color','r')
@@ -136,7 +137,7 @@ alpha = 0.01;
 %%
 figure
 lwd = 1.5;
-ylims = [-0.6 0.6];
+ylims = [-1 1];
 subplot(2,2,1)
 plot(scales,Khh,'-b','LineWidth',lwd)
 hold on

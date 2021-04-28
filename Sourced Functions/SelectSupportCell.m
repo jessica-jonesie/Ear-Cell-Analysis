@@ -1,5 +1,17 @@
-function [CellProps,ImDat] = SelectSupportCell(RAW,ImDat,EllipticalApproximation)
+function [CellProps,ImDat] = SelectSupportCell(RAW,ImDat,EllipticalApproximation,varargin)
 
+%% Parse inputs
+p = inputParser;
+addRequired(p,'RAW',@isnumeric);
+addRequired(p,'ImDat',@isstruct);
+addRequired(p,'EllipticalApproximation',@islogical)
+checkCtrType = @(x) any(validatestring(x,{'Centroid','Visual'}));
+addParameter(p,'CenterType','Centroid',checkCtrType);
+
+parse(p,RAW,ImDat,EllipticalApproximation,varargin{:});
+
+CenterType = p.Results.CenterType;
+%%
 imB = localcontrast(RAW(:,:,3)); % Blue Channel contrasted;
 imG = localcontrast(RAW(:,:,2)); % Green Channel contrasted;
 imR = localcontrast(RAW(:,:,1)); % Red Channel contrasted;
@@ -70,6 +82,11 @@ imK{14} = typeRef;
 
 %% Compute properties of Cells
 CellProps = bwcompprops(typeRef);
+
+% Change cell center if requested
+if strcmp(CenterType,'Visual')
+    CellProps.Centroid = BWVisualCenter(typeRef);
+end
 
 % Expand Ellipses slightly.
 expansionFactor = 1.0;

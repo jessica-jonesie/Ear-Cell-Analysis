@@ -21,10 +21,10 @@ clc; clear; close all;
 % SupportCells = true(imx,imy)-HairCells-NotCells;
 
 %% New section
-root = 'Data/P0/P0';
+root = 'Data/P12/P12_Utricle';
 RAW = imread(strcat(root,'_RAW.png'));
 
-Invert = true;
+Invert = false;
 if Invert
     HairCells = ~imread(strcat(root,'_HairCells.bmp'));
     SupportCells = ~imread(strcat(root,'_SupportCells.bmp'));
@@ -53,10 +53,10 @@ HairCells = imclearborder(logical(HairCells));
 SupportCells = imclearborder(logical(SupportCells));
 
 %% Extract Cell params
-[HairCellProps,ImDat] = GetPropsAndIms(PolarBodies,HairCells);
+[HairCellProps,ImDat] = GetPropsAndIms(PolarBodies,HairCells,'CenterType','Visual');
 [HairCellProps] = BBOrient(HairCellProps,HairCellProps.Im,'BB');
 HairCellProps.Type = repmat('H',[height(HairCellProps) 1]);
-[SupportCellProps,ImDat] = GetPropsAndIms(PolarBodies,SupportCells);
+[SupportCellProps,ImDat] = GetPropsAndIms(PolarBodies,SupportCells,'CenterType','Visual');
 [SupportCellProps] = BBOrient(SupportCellProps,SupportCellProps.Im,'BB');
 SupportCellProps.Type = repmat('S',[height(SupportCellProps) 1]);
 

@@ -1,5 +1,5 @@
 function [imageOut] = ImagePreProcess(imageIn,scale)
-%UNTITLED6 Summary of this function goes here
+%IMAGEPREPROCESS contrast, denoise, and apply illumination correction
 %   Detailed explanation goes here
 
 % contrast

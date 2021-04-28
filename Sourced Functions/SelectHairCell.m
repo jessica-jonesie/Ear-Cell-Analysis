@@ -18,6 +18,9 @@ addParameter(p,'MinAvgInt',20,@isnumeric)
 addParameter(p,'EllipApprox',true,@islogical);
 addParameter(p,'Suppress',false,@islogical);
 
+checkCtrType = @(x) any(validatestring(x,{'Centroid','Visual'}));
+addParameter(p,'CenterType','Centroid',checkCtrType);
+
 parse(p,RAW,varargin{:});
 
 Channel = p.Results.Channel;
@@ -32,6 +35,7 @@ ClearBorder= p.Results.ClearBorder;
 MinAvgInt = p.Results.MinAvgInt;
 EllipApprox = p.Results.EllipApprox;
 Suppress = p.Results.Suppress;
+CenterType = p.Results.CenterType;
 
 %%
 Contrasted = localcontrast(RAW);
@@ -100,6 +104,12 @@ imK{9} =imDil;
 % computed as well as their major axis length, minor axis length, and orientation. 
 
 CellProps = bwcompprops(imDil);
+
+% Replace Center Type if requested
+if strcmp(CenterType,'Visual')
+    CellProps.Centroid = BWVisualCenter(imDil);
+end
+
 
 %% Add a few additional descriptors to the CellProps table
 nHair = length(CellProps.Area);

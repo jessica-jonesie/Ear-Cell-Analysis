@@ -16,7 +16,7 @@ RAW = imread(strcat(imagename,'.png'));
 [BPix,map] = BoundPix(RAW);
 
 % Identify the hair cells in the image.
-[HairCellProps,ImDat] = SelectHairCell(RAW);
+[HairCellProps,ImDat] = SelectHairCell(RAW,'CenterType','Visual');
 % [HairCellProps,ImDat] = SelectHairCellAlt(RAW,EllipticalApproximation);
 
 % Compute the hair cell orientation based on basal body position.
@@ -26,7 +26,7 @@ RAW = imread(strcat(imagename,'.png'));
 [HairCellProps] = OrientHairCell_Fonticulus(HairCellProps);
 
 % Identify the support cells in the image
-[SupportCellProps,ImDat] = SelectSupportCell(RAW,ImDat,EllipticalApproximation);
+[SupportCellProps,ImDat] = SelectSupportCell(RAW,ImDat,EllipticalApproximation,'CenterType','Visual');
 
 % Filter out Support Cells that are not in contact with hair cells.
 [keptSupportCells,~,ImDat.SupportCellMask] = IsNeighbor(ImDat.SupportCellMask,ImDat.HairCellMask,7);

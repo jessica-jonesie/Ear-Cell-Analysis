@@ -1,6 +1,16 @@
-function [Props,ImDat] = GetPropsAndIms(Image,Mask)
+function [Props,ImDat] = GetPropsAndIms(Image,Mask,varargin)
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
+%% parse
+p = inputParser;
+addRequired(p,'Image');
+addRequired(p,'Mask');
+checkCtrType = @(x) any(validatestring(x,{'Centroid','Visual'}));
+addParameter(p,'CenterType','Centroid',checkCtrType);
+
+parse(p,Image,Mask,varargin{:});
+CenterType = p.Results.CenterType;
+%%
 if length(size(Image))==3
     imR = Image(:,:,1);
     imG = Image(:,:,2);
@@ -12,6 +22,12 @@ elseif length(size(Image))==2
 end
 
 Props = bwcompprops(Mask);
+
+if strcmp(CenterType,'Visual')
+    Props.Centroid = BWVisualCenter(Mask);
+end
+
+
 Props.Circularity = (4*pi*Props.Area)./(Props.Perimeter.^2);
 nImages = length(Props.Area);
 Props.ID = (1:nImages)';

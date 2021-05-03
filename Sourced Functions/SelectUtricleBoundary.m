@@ -1,4 +1,4 @@
-function [CellProps,BoundPts,imClose,imK] = SelectUtricleBoundary(RAW,CellProps,varargin)
+function [CellProps,BoundPts,imClose,imK] = SelectUtricleBoundary(RAW,varargin)
 %SELECTUTRICLEBOUNDARY finds the boundary of the Utricle. 
 %   [CellProps,BoundPts] = SELECTUTRICLEBOUNDARY(RAW,CellProps) compute the
 %   utricular boundary given a RAW full color image and a table of Cell
@@ -19,7 +19,7 @@ function [CellProps,BoundPts,imClose,imK] = SelectUtricleBoundary(RAW,CellProps,
 p = inputParser;
 
 addRequired(p,'RAW');
-addRequired(p,'CellProps');
+% addRequired(p,'CellProps');
 
 addParameter(p,'Smooth',0,@isnumeric);
 addParameter(p,'CloseRad',1,@isnumeric);
@@ -28,8 +28,9 @@ addParameter(p,'GaussFilt',60,@isnumeric);
 addParameter(p,'BWThresh',200,@isnumeric);
 addParameter(p,'RefAngType','inverse',@ischar);
 addParameter(p,'RefAngParams',2,@isnumeric);
+addParameter(p,'CellProps',[],@istable);
 
-parse(p,RAW,CellProps,varargin{:})
+parse(p,RAW,varargin{:})
 
 smooth = p.Results.Smooth;
 CloseRad = p.Results.CloseRad;
@@ -38,6 +39,7 @@ GaussFilt = p.Results.GaussFilt;
 BWThresh = p.Results.BWThresh;
 RefAngType = p.Results.RefAngType;
 RefAngParams = p.Results.RefAngParams;
+CellProps = p.Results.CellProps;
 
 %%
 % contrast
@@ -87,6 +89,7 @@ if smooth>0
    end
 
 %% Display Results
+if ~isempty(CellProps)
 [~,CellProps.RefAngle] = pt2ptInfluence(CellProps.Centroid,BoundPts,RefAngType,RefAngParams);
 
 
@@ -94,6 +97,8 @@ CellProps.PixID = pts2pix(fliplr(CellProps.Centroid),size(imClose));
 CellProps.InBound = imClose(CellProps.PixID);
 
 CellProps.RefAngle(~CellProps.InBound)= CellProps.RefAngle(~CellProps.InBound)+180;
+end
+
 % unitX = cosd(refAngle);
 % unitY = sind(refAngle);
 % 

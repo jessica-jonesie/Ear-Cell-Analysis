@@ -34,10 +34,13 @@ for k = 1:nLabels
             
             MaskID = MaskID(rowrange, colrange);
             SingleIm = im(rowrange, colrange,:);
+            SingleIm = double(MaskID).*double(SingleIm);
             if islogical(im)
-                SingleIm = logical(double(MaskID).*double(SingleIm));
+                SingleIm = logical(SingleIm);
+            elseif isa(im,'uint8')
+                SingleIm = uint8(SingleIm);
             else
-                SingleIm = uint8(double(MaskID).*double(SingleIm));
+                SingleIm = SingleIm;
             end
             
             SepIms{k} = SingleIm;

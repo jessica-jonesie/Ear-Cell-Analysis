@@ -35,6 +35,7 @@ FilledMask = imfill(CellMask,'holes');
 % NormImage(NormImage>=ctrPolMap) = shiftgtmap(NormImage>=ctrPolMap);
 
 polarities = 2*abs(NormImage-0.5).*FilledMask;
+% polarities = NormImage.*FilledMask;
 polarities(~CellMask)=NaN;
 end
 

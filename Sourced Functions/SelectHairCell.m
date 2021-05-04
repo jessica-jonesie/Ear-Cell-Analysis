@@ -17,6 +17,7 @@ addParameter(p,'ClearBorder',true,@islogical)
 addParameter(p,'MinAvgInt',20,@isnumeric)
 addParameter(p,'EllipApprox',true,@islogical);
 addParameter(p,'Suppress',false,@islogical);
+addParameter(p,'BoundaryIm',[],@islogical);
 
 checkCtrType = @(x) any(validatestring(x,{'Centroid','Visual'}));
 addParameter(p,'CenterType','Centroid',checkCtrType);
@@ -36,6 +37,7 @@ MinAvgInt = p.Results.MinAvgInt;
 EllipApprox = p.Results.EllipApprox;
 Suppress = p.Results.Suppress;
 CenterType = p.Results.CenterType;
+BoundaryIm = p.Results.BoundaryIm;
 
 %%
 Contrasted = localcontrast(RAW);
@@ -184,14 +186,19 @@ CellProps.CellImRed = labelSeparate(imCells,LabEllipse,'mask')';
 CellProps.CellImGreen = labelSeparate(imG,LabEllipse,'mask')';
 CellProps.CellImBlue = labelSeparate(imB,LabEllipse,'mask')';
 CellProps.CellMaskEllipse = labelSeparate(imEllipse,LabEllipse,'mask')';
-
+CellProps.CellMaskRough = labelSeparate(imDil,LabMask,'mask')';
 
 if EllipApprox==true
     CellProps.CellMask = CellProps.CellMaskEllipse;
+%     ImDat.HairPolMap = PolarityByFeature(ImDat.HairCellEllipseMask,BoundaryIm);
+%     CellProps.PolMap = labelSeparate(ImDat.HairPolMap,LabEllipse,'mask')';
 else
-    CellProps.CellMask = labelSeparate(imDil,LabMask,'mask')';
+    CellProps.CellMask = CellProps.CellMaskRough;
+    ImDat.HairPolMap = PolarityByFeature(ImDat.HairCellMask,BoundaryIm);
+    CellProps.PolMap = labelSeparate(ImDat.HairPolMap,LabMask,'mask')';
 end
 end
+
 
 end
 

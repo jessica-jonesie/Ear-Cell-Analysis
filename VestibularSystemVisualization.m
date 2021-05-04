@@ -25,7 +25,9 @@ ycompH = PolarH.*sind(OrientH);
 xcompS = PolarS.*cosd(OrientS);
 ycompS = PolarS.*sind(OrientS);
 %% Display Results
-PolAndOriHistograms(CellProps,'Full')
+% oribins = (pi/4)*[-1 1 3 5 7];
+oribins= 'auto';
+PolAndOriHistograms(CellProps,'PolBins',5,'OriBins',oribins)
 PolarityWeightedOrientationHist(CellProps);
 CellSelectionOverlay(ImDat)
 

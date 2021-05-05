@@ -7,8 +7,6 @@ addParameter(p,'Channel','B',@ischar);
 addParameter(p,'MedFilt',2,@isnumeric);
 addParameter(p,'BWThresh',0.6,@isnumeric);
 addParameter(p,'CloseRad',2,@isnumeric);
-checkPolarity = @(x) any(validatestring(x,{'Dist','Map'}));
-addParameter(p,'PolarityType','Dist',checkPolarity);
 
 parse(p,CellProps,varargin{:})
 
@@ -16,7 +14,6 @@ Channel = p.Results.Channel;
 MedFiltR = p.Results.MedFilt;
 BWThresh = p.Results.BWThresh;
 CloseRad = p.Results.CloseRad;
-PolarityType = p.Results.PolarityType;
 
 %%
 nCells = length(CellProps.Area);
@@ -64,21 +61,4 @@ end
 
 CellProps = BBOrient(CellProps,imBB,'BB');
 CellProps.imBB = imBB';
-
-
-% Compute polarity based upon map if requested.
-if strcmp(PolarityType,'Map')
-    for k = 1:height(CellProps)
-        PolMap = CellProps.PolMap{k};
-        bbMask = CellProps.imBB{k};
-        if sum(bbMask(:))~=0
-            bbPolarity(k) = mean(PolMap(bbMask),'omitnan');
-        else
-            bbPolarity(k) = NaN;
-        end
-    end
-    
-    CellProps.BBPolarity=bbPolarity';
-end
-
 end

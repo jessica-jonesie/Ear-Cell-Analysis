@@ -11,8 +11,6 @@ addParameter(p,'ErodeRads',[2 4],@isnumeric);
 addParameter(p,'BWThresh',0.8,@isnumeric);
 addParameter(p,'AreaRng',[0.01 0.15],@isnumeric);
 addParameter(p,'SolidRng',[0.7 1],@isnumeric);
-checkPolarity = @(x) any(validatestring(x,{'Dist','Map'}));
-addParameter(p,'PolarityType','Dist',checkPolarity);
 
 parse(p,CellProps,varargin{:})
 
@@ -23,7 +21,6 @@ ErodeRads = p.Results.ErodeRads;
 BWThresh = p.Results.BWThresh;
 AreaRng = p.Results.AreaRng;
 SolidRng = p.Results.SolidRng;
-PolarityType = p.Results.PolarityType;
 
 %%
 switch Channel
@@ -97,21 +94,4 @@ end
 
 CellProps = BBOrient(CellProps,morFilt4,'F');
 CellProps.imFont = morFilt4';
-
-
-% Compute polarity based upon map if requested.
-if strcmp(PolarityType,'Map')
-    for k = 1:height(CellProps)
-        PolMap = CellProps.PolMap{k};
-        fontMask = CellProps.imFont{k};
-        if sum(fontMask(:))~=0
-            fontPolarity(k) = mean(PolMap(fontMask),'omitnan');
-        else
-            fontPolarity(k) = NaN;
-        end
-    end
-    
-    CellProps.FPolarity=fontPolarity';
-end
-
 end

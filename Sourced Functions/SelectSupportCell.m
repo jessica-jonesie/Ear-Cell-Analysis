@@ -7,12 +7,10 @@ addRequired(p,'ImDat',@isstruct);
 addRequired(p,'EllipticalApproximation',@islogical)
 checkCtrType = @(x) any(validatestring(x,{'Centroid','Visual'}));
 addParameter(p,'CenterType','Centroid',checkCtrType);
-addParameter(p,'BoundaryIm',[],@islogical);
 
 parse(p,RAW,ImDat,EllipticalApproximation,varargin{:});
 
 CenterType = p.Results.CenterType;
-BoundaryIm = p.Results.BoundaryIm;
 %%
 imB = localcontrast(RAW(:,:,3)); % Blue Channel contrasted;
 imG = localcontrast(RAW(:,:,2)); % Green Channel contrasted;
@@ -139,16 +137,11 @@ CellProps.CellMaskEllipse = MaskIms';
 
 CellProps.CellMask = labelSeparate(true(width,height),bwlabel(typeRef),'mask')';
 ImDat.SupportCellMask = typeRef;
-CellProps.CellMaskRough = labelSeparate(true(width,height),bwlabel(typeRef),'mask')';
-ImDat.SupportCellLabels = bwlabel(typeRef);
 
 if EllipticalApproximation==true
     CellProps.CellMask = CellProps.CellMaskEllipse;
 else
-    CellProps.CellMask = CellProps.CellMaskRough;
-    ImDat.SupportPolMap = PolarityByFeature(ImDat.SupportCellMask,BoundaryIm);
-    CellProps.PolMap = labelSeparate(ImDat.SupportPolMap,bwlabel(typeRef),'mask')';
+    CellProps.CellMask = labelSeparate(true(width,height),bwlabel(typeRef),'mask')';
 end
-
 
 end

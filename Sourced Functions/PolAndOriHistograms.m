@@ -1,20 +1,7 @@
-function [] = PolAndOriHistograms(CellProps,varargin)
+function [] = PolAndOriHistograms(CellProps,sidedness)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
-%% parse inputs
-p = inputParser;
-addRequired(p,'CellProps',@istable);
-addParameter(p,'sidedness','Full',@ischar);
-checkBins = @(x) strcmp(x,'auto')|isnumeric(x);
-addParameter(p,'OriBins','auto',checkBins);
-addParameter(p,'PolBins','auto',checkBins);
 
-parse(p,CellProps,varargin{:});
-
-sidedness = p.Results.sidedness;
-OriBins = p.Results.OriBins;
-PolBins = p.Results.PolBins;
-%%
 if strcmp(sidedness,'Full')
     CellProps.NormOrientation = CellProps.NormOrientation;
 elseif strcmp(sidedness,'Half')
@@ -22,17 +9,13 @@ elseif strcmp(sidedness,'Half')
 elseif strcmp(sidedness,'Quarter')
     CellProps.NormOrientation = wrapTo90(CellProps.NormOrientation);
 else
-    error('Invalid Sidedness')
+    error('Invalid Sideness')
 end
 
 %%
-if strcmp(OriBins,'auto')
-    nbins = ceil(pi*FDBins(CellProps.NormOrientation));
-else
-    nbins = OriBins;
-end
+nbins = ceil(pi*FDBins(CellProps.NormOrientation));
 
-fH1=figure;
+figure
 subplot(1,3,1)
 ph=polarhistogram(CellProps.NormOrientation*2*pi/360,nbins);
 ph.Normalization = 'probability';
@@ -51,13 +34,11 @@ ph.Normalization = 'probability';
 ph.FaceColor = 'c';
 title('Support Cells');
 
+
 sgtitle('Orientation Distribution')
 %%
-if strcmp(PolBins,'auto')
-    nbins = ceil(FDBins(CellProps.CombinedPolarity));
-else
-    nbins = PolBins;
-end
+% nbins = 20;
+nbins = ceil(FDBins(CellProps.CombinedPolarity));
 
 comboCounts = histcounts(CellProps.CombinedPolarity,nbins);...
 hairCounts = histcounts(CellProps.CombinedPolarity(CellProps.Type=='H'),nbins);
@@ -71,11 +52,11 @@ maxFreq = max([comboFreq hairFreq supportFreq]);
 
 
 
-fH2=figure;
+figure
 s1=subplot(1,3,1);
 curdat = CellProps.CombinedPolarity;
 reps = 200;
-lwd=2;
+lwd=2
 
 h1=histogram(curdat,nbins);
 h1.Normalization = 'probability';
@@ -87,7 +68,7 @@ ylim([0 maxFreq*1.1]);
 hold on
 plot(NullX,NullP,'-k','LineWidth',lwd)
 hold off
-axis square
+
 
 s2=subplot(1,3,2);
 curdat = CellProps.CombinedPolarity(CellProps.Type=='H');
@@ -101,7 +82,7 @@ ylim([0 maxFreq*1.1]);
 hold on
 plot(NullX,NullP,'-k','LineWidth',lwd)
 hold off
-axis square
+
 
 s3=subplot(1,3,3);
 curdat = CellProps.CombinedPolarity(CellProps.Type=='S');
@@ -115,14 +96,16 @@ ylim([0 maxFreq*1.1]);
 hold on
 plot(NullX,NullP,'-k','LineWidth',lwd)
 hold off
-axis square
+
 
 maxFreq = max([h1.Values h2.Values h3.Values])*1.1;
 s1.YLim = [0 maxFreq];
 s2.YLim = [0 maxFreq];
 s3.YLim = [0 maxFreq];
 
+
 sgtitle('Magnitude of Polarity Distribution')
+
 end
 
 function [NullMean,NullSD,nullx,NullCounts] = NullPolarity(data,nbins,reps)

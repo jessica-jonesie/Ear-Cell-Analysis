@@ -135,13 +135,17 @@ CellProps.CellImBlue = CellImBlue';
 
 CellProps.CellMaskEllipse = MaskIms';
 
-CellProps.CellMask = labelSeparate(true(width,height),bwlabel(typeRef),'mask')';
+CellProps.CellMaskRough = labelSeparate(true(width,height),bwlabel(typeRef),'mask')';
 ImDat.SupportCellMask = typeRef;
 
 if EllipticalApproximation==true
     CellProps.CellMask = CellProps.CellMaskEllipse;
 else
-    CellProps.CellMask = labelSeparate(true(width,height),bwlabel(typeRef),'mask')';
+    CellProps.CellMask = CellProps.CellMaskRough;
+    ImDat.SupportEdge2Center= BW_Edge2CtrDist(typeRef);
+    CellProps.PolMap = labelSeparate(ImDat.SupportEdge2Center,LabMask,'mask')';
 end
+
+
 
 end

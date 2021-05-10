@@ -9,14 +9,14 @@ addpath('Results')
 imagename = 'RAW';
 
 %% Analyze Image
-EllipticalApproximation = true;
+EllipticalApproximation = false;
 % Read in the image to be analyzed
 RAW = imread(strcat(imagename,'.png'));
 
 [BPix,map] = BoundPix(RAW);
 
 % Identify the hair cells in the image.
-[HairCellProps,ImDat] = SelectHairCell(RAW,'CenterType','Visual');
+[HairCellProps,ImDat] = SelectHairCell(RAW,'CenterType','Visual','EllipApprox',EllipticalApproximation);
 % [HairCellProps,ImDat] = SelectHairCellAlt(RAW,EllipticalApproximation);
 
 % Compute the hair cell orientation based on basal body position.
@@ -48,19 +48,26 @@ CellProps = [HairCellProps; SupportCellProps];
 % specified by the second argument below. (Usually 90 degrees)
 CellProps = CombineBBAndFont(CellProps,90);
 
-% Prompt additional user input where needed. 
 % A magnitude of polarity greater than 1 is impossible. When these occur,
 % prompt user input.
-
 CellProps = CorrectPolarity(CellProps); 
 
 % Identify the utricular boundary and calculate reference angles. 
-tic
-[CellProps,BoundPts,ImDat.ImBound] = SelectUtricleBoundary(RAW,CellProps,'CloseRad',2); 
-toc
+[CellProps,BoundPts,ImDat.ImBound] = SelectUtricleBoundary(RAW,'CellProps',CellProps,'CloseRad',2); 
 
 % Normalize orientations with respect to the Utricular Boundary. 
 CellProps.NormOrientation = wrapTo180(CellProps.RefAngle-CellProps.CombinedOrientation);
+
+% Omit NaN entries
+nanOri = isnan(CellProps.NormOrientation);
+nanPol = isnan(CellProps.CombinedPolarity);
+CellProps(nanOri|nanPol,:)=[];
+
+% Prompt additional user input where needed. 
+% Use mapped polarity if Elliptical approximation isn't true
+if ~EllipticalApproximation
+    CellProps = ConvPolToMapPol(CellProps);
+end
 
 %% Save Results
 curtime = qdt('Full');

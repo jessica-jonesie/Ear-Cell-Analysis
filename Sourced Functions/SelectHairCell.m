@@ -184,14 +184,20 @@ CellProps.CellImRed = labelSeparate(imCells,LabEllipse,'mask')';
 CellProps.CellImGreen = labelSeparate(imG,LabEllipse,'mask')';
 CellProps.CellImBlue = labelSeparate(imB,LabEllipse,'mask')';
 CellProps.CellMaskEllipse = labelSeparate(imEllipse,LabEllipse,'mask')';
-
+CellProps.CellMaskRough = labelSeparate(imDil,LabMask,'mask')';
 
 if EllipApprox==true
     CellProps.CellMask = CellProps.CellMaskEllipse;
+%     ImDat.HairEdge2Center= BW_Edge2CtrDist(imEllipse);
+%     CellProps.PolMap = labelSeparate(ImDat.HairEdge2Center,LabEllipse,'mask')';
 else
-    CellProps.CellMask = labelSeparate(imDil,LabMask,'mask')';
+    CellProps.CellMask = CellProps.CellMaskRough;
+    ImDat.HairEdge2Center= BW_Edge2CtrDist(imDil);
+    CellProps.PolMap = labelSeparate(ImDat.HairEdge2Center,LabMask,'mask')';
 end
 end
+
+% Compute edge2center maps for polarity calculations.
 
 end
 

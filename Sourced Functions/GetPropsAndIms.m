@@ -61,5 +61,10 @@ Props.MaskEllipse = CroppedMasks';
 Props.ImRed = Crop2Mask(imR,EllipseMasks)';
 Props.ImGreen = Crop2Mask(imG,EllipseMasks)';
 Props.ImBlue = Crop2Mask(imB,EllipseMasks)';
+
+Props.CellMask = labelSeparate(Mask,LabMask,'mask')';
+
+ImDat.HairEdge2Center= BW_Edge2CtrDist(Mask);
+Props.PolMap = labelSeparate(ImDat.HairEdge2Center,LabMask,'mask')';
 end
 

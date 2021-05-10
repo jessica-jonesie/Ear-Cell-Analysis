@@ -77,6 +77,10 @@ CellProps.CombinedOrientation = CellProps.BBOrientation;
 ImDat.HairCellMask = HairCells;
 ImDat.SupportCellMask = SupportCells;
 ImDat.RAW = RAW;
+
+% Convert old polarities to Mapped Polarities
+getPol = @(x,y) mean(y(BWShrink2Pt(x)),'omitnan');
+CellProps.CombinedPolarity = cell2mat(cellfun(getPol,CellProps.Im, CellProps.PolMap,'UniformOutput',false));
 %% Save Results
 savename = strcat(root,'_ManualSeg_data_',qdt('Full'),'.mat');
 save(savename,'CellProps','ImDat');

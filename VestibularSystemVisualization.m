@@ -10,10 +10,15 @@ clrMap = 'RdYlBu';
 [file,path] = uigetfile('*.mat');
 load(fullfile(path,file));
 
-nanOri = isnan(CellProps.CombinedOrientation);
+nanOri = isnan(CellProps.NormOrientation);
 nanPol = isnan(CellProps.CombinedPolarity);
 CellProps(nanOri|nanPol,:)=[];
 
+% Fix orientation thing
+% CellProps.NormOrientation = wrapTo360(360-CellProps.NormOrientation);
+
+HID = CellProps.Type=='H';
+SID = CellProps.Type=='S';
 % Commonly used sets
 OrientH = CellProps.NormOrientation(CellProps.Type=='H');
 OrientS = CellProps.NormOrientation(CellProps.Type=='S');
@@ -24,6 +29,8 @@ xcompH = PolarH.*cosd(OrientH);
 ycompH = PolarH.*sind(OrientH);
 xcompS = PolarS.*cosd(OrientS);
 ycompS = PolarS.*sind(OrientS);
+
+cbrewmap = flipud(cbrewer('div','Spectral',64));
 %% Display Results
 PolAndOriHistograms(CellProps,'Full')
 PolarityWeightedOrientationHist(CellProps);
@@ -46,10 +53,21 @@ subplot(1,2,2)
 MyBullseye(OrientS,PolarS,'Units','degrees','Color','c')
 title('Support')
 
+% Model cell plot
 figure
-densityplot(xcompH,ycompH,'Edges',{-1:0.1:1; -1:0.1:1})
-axis equal
-axis tight
+subplot(1,2,1)
+ModelCellMap(CellProps.CombinedPolarity(CellProps.Type=='H'),wrapTo360(360-CellProps.NormOrientation(CellProps.Type=='H')),100,'pbradius',10,'kernType','circle');
+title('Hair Cell')
+cax = colorbar;
+ylabel(cax,'Polar Body Density');
+
+
+subplot(1,2,2)
+ModelCellMap(CellProps.CombinedPolarity(CellProps.Type=='S'),wrapTo360(360-CellProps.NormOrientation(CellProps.Type=='S')),100,'pbradius',10,'kernType','circle');
+title('Support Cell')
+cax= colorbar;
+ylabel(cax,'Polar Body Density');
+
 %% Statistics
 [combinedX,intCDFs] = InterpCDFs(xO,CDFO);
 interpCDFPlot(combinedX,intCDFs,'polar');

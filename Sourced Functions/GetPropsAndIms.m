@@ -10,6 +10,15 @@ addParameter(p,'CenterType','Centroid',checkCtrType);
 
 parse(p,Image,Mask,varargin{:});
 CenterType = p.Results.CenterType;
+
+% Impose mask on image
+if isa(Image,'uint8')
+    Image=uint8(Image.*Mask); 
+elseif islogical(Image)
+    Image = logical(Image.*Mask);
+end
+
+    
 %%
 if length(size(Image))==3
     imR = Image(:,:,1);

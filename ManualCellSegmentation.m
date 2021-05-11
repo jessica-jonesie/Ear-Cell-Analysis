@@ -16,8 +16,6 @@ clc; clear; close all;
 % NotCells = ~imread('GammaTub_02_merge_cropped_NotCells.bmp');
 % BasalBodies = ~imread('GammaTub_02_merge_cropped_BB.bmp');
 
-
-
 % SupportCells = true(imx,imy)-HairCells-NotCells;
 
 %% New section
@@ -54,9 +52,11 @@ SupportCells = imclearborder(logical(SupportCells));
 
 %% Extract Cell params
 [HairCellProps,ImDat] = GetPropsAndIms(PolarBodies,HairCells,'CenterType','Visual');
+HairCellProps.CellIm = labelSeparate(RAW,bwlabel(ImDat.Mask),'mask')';
 [HairCellProps] = BBOrient(HairCellProps,HairCellProps.Im,'BB');
 HairCellProps.Type = repmat('H',[height(HairCellProps) 1]);
 [SupportCellProps,ImDat] = GetPropsAndIms(PolarBodies,SupportCells,'CenterType','Visual');
+SupportCellProps.CellIm = labelSeparate(RAW,bwlabel(ImDat.Mask),'mask')';
 [SupportCellProps] = BBOrient(SupportCellProps,SupportCellProps.Im,'BB');
 SupportCellProps.Type = repmat('S',[height(SupportCellProps) 1]);
 
@@ -67,13 +67,22 @@ SupportCellProps.ID=(1:height(SupportCellProps))';
 
 %% Merge
 CellProps = [HairCellProps; SupportCellProps];
-CellProps.NormOrientation = CellProps.BBOrientation;
+
+
+%% Set Boundary
+[CellProps,BoundPts,ImDat.ImBound] = SelectUtricleBoundary(RAW,'CellProps',CellProps,'CloseRad',2); 
+CellProps.CombinedOrientation = CellProps.BBOrientation;
+% Normalize orientations with respect to the Utricular Boundary. 
+CellProps.NormOrientation = wrapTo360(CellProps.RefAngle-CellProps.CombinedOrientation);
+% CellProps.NormOrientation = CellProps.BBOrientation;
+%% other stuff
+
 CellProps.CombinedPolarity = CellProps.BBPolarity;
 
 CellProps(isnan(CellProps.BBOrientation),:)=[];
 CellProps.DblAngOrientation = DblAngTransform(CellProps.NormOrientation,'deg');
 %% add extra stuff
-CellProps.CombinedOrientation = CellProps.BBOrientation;
+
 ImDat.HairCellMask = HairCells;
 ImDat.SupportCellMask = SupportCells;
 ImDat.RAW = RAW;
@@ -81,8 +90,11 @@ ImDat.RAW = RAW;
 % Convert old polarities to Mapped Polarities
 getPol = @(x,y) mean(y(BWShrink2Pt(x)),'omitnan');
 CellProps.CombinedPolarity = cell2mat(cellfun(getPol,CellProps.Im, CellProps.PolMap,'UniformOutput',false));
+
+ImDat.CellBounds = CellBounds;
+ImDat.PolarBodies = PolarBodies;
 %% Save Results
 savename = strcat(root,'_ManualSeg_data_',qdt('Full'),'.mat');
-save(savename,'CellProps','ImDat');
+save(savename,'CellProps','ImDat','BoundPts');
 
 

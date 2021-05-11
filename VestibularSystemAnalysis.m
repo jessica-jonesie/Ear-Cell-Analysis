@@ -53,7 +53,8 @@ CellProps = CombineBBAndFont(CellProps,90);
 CellProps = CorrectPolarity(CellProps); 
 
 % Identify the utricular boundary and calculate reference angles. 
-[CellProps,BoundPts,ImDat.ImBound] = SelectUtricleBoundary(RAW,'CellProps',CellProps,'CloseRad',2); 
+[CellProps,BoundPts,ImDat.ImBound,UserPts] = SelectUtricleBoundary(RAW,'CellProps',CellProps,'CloseRad',2); 
+
 
 % Normalize orientations with respect to the Utricular Boundary. 
 CellProps.NormOrientation = wrapTo180(CellProps.RefAngle-CellProps.CombinedOrientation);

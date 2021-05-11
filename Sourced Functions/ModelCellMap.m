@@ -34,8 +34,8 @@ for k=1:nmaps
 end
 
 % % Get norm map
-% nrmmap = bwdist(~CircBW(rez));
-% nrmmap = nrmmap/max(nrmmap(:));
+nrmmap = bwdist(~CircBW(rez));
+nrmmap = nrmmap/max(nrmmap(:));
 
 
 if crop

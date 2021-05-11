@@ -31,6 +31,9 @@ xcompS = PolarS.*cosd(OrientS);
 ycompS = PolarS.*sind(OrientS);
 
 cbrewmap = flipud(cbrewer('div','Spectral',64));
+
+ImDat.HairCellMaskB = BuildMask(ImDat.RAW,CellProps(HID,:));
+ImDat.SupportCellMaskB = BuildMask(ImDat.RAW,CellProps(SID,:));
 %% Display Results
 PolAndOriHistograms(CellProps,'Full')
 PolarityWeightedOrientationHist(CellProps);
@@ -38,6 +41,8 @@ CellSelectionOverlay(ImDat)
 
 if exist('BoundPts','var')
     OrientationVectorOverlay(CellProps,BoundPts,ImDat,'Scaling','BB','ScaleValue',0);
+    F = getframe;
+    ImDat.AnnotImage = export_fig('-native');
 end
 
 [CDFO,xO] = CDFPlot(CellProps,'Orientation','xy','none');

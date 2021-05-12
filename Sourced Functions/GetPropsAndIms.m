@@ -6,7 +6,7 @@ p = inputParser;
 addRequired(p,'Image');
 addRequired(p,'Mask');
 checkCtrType = @(x) any(validatestring(x,{'Centroid','Visual'}));
-addParameter(p,'CenterType','Centroid',checkCtrType);
+addParameter(p,'CenterType','Visual',checkCtrType);
 
 parse(p,Image,Mask,varargin{:});
 CenterType = p.Results.CenterType;
@@ -43,33 +43,43 @@ Props.ID = (1:nImages)';
 Props.PixIDs = struct2cell(regionprops(Mask,'PixelIdxList'))';
 
 
-[imEllipse,EllipseMasks] = bwEllipse(size(Mask),Props.Centroid,Props.MajorAxisLength,Props.MinorAxisLength,Props.Orientation);
+% [imEllipse,EllipseMasks] = bwEllipse(size(Mask),Props.Centroid,Props.MajorAxisLength,Props.MinorAxisLength,Props.Orientation);
 
+Props.EllipseOrientation = Props.Orientation;
 
 % Isolate the cells
 [LabMask,~] = bwlabel(Mask);
-[LabEllipse,~] = bwlabel(imEllipse);
-
+% [LabEllipse,~] = bwlabel(imEllipse);
+% 
 % Store Data
 ImDat.RAW = Image;
 ImDat.Red = imR;
 ImDat.Blue = imB;
 ImDat.Green = imG;
 ImDat.Mask = Mask;
-ImDat.EllipseMask = imEllipse;
+% ImDat.EllipseMask = imEllipse;
 ImDat.Labels = LabMask;
-ImDat.EllipseLabels = LabEllipse;
+% ImDat.EllipseLabels = LabEllipse;
 
-Props.Properties.VariableNames{6} = 'EllipseOrientation';
+% Props.Properties.VariableNames{6} = 'EllipseOrientation';
 
 % Props.Type = repmat('H',[nImages 1]);
 
-[CroppedIms,CroppedMasks] = Crop2Mask(Image,EllipseMasks);
-Props.Im = CroppedIms';
-Props.MaskEllipse = CroppedMasks';
-Props.ImRed = Crop2Mask(imR,EllipseMasks)';
-Props.ImGreen = Crop2Mask(imG,EllipseMasks)';
-Props.ImBlue = Crop2Mask(imB,EllipseMasks)';
+% [CroppedIms,CroppedMasks] = Crop2Mask(Image,Mask);
+[SepIms,~,pxrows,pxcols] = labelSeparate(Image,LabMask,'mask');
+
+% Get local centers
+% getfirstentry = @(x) x(1);
+% yshift = cell2mat(cellfun(getfirstentry,pxrows,'UniformOutput',false))-1;
+% xshift = cell2mat(cellfun(getfirstentry,pxcols,'UniformOutput',false))-1;
+% 
+% Props.LocalCenter = Props.Centroid-[yshift' xshift'];
+
+Props.Im = SepIms';
+% Props.MaskEllipse = CroppedMasks';
+Props.ImRed = labelSeparate(imR,LabMask,'mask')';
+Props.ImGreen = labelSeparate(imG,LabMask,'mask')';
+Props.ImBlue = labelSeparate(imB,LabMask,'mask')';
 
 Props.CellMask = labelSeparate(Mask,LabMask,'mask')';
 

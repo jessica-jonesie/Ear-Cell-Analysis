@@ -15,8 +15,8 @@ Scaling = p.Results.Scaling;
 ScaleValue = p.Results.ScaleValue;
 %%
 figure
-% imshow(ImDat.RAW);
-imshow(labeloverlay(ImDat.RAW,bwlabel(ImDat.PolarBodies)))
+imshow(ImDat.RAW);
+% imshow(labeloverlay(ImDat.RAW,bwlabel(ImDat.PolarBodies)))
 
 hold on
 plot(BoundPts(:,1),BoundPts(:,2),'.w')

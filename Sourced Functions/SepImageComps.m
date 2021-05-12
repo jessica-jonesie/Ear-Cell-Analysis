@@ -25,6 +25,19 @@ tgtMask = ImDat.([GroupName 'CellMask']);
 ImDat.(labelF) = bwlabel(tgtMask);
 ImDat.(polF) = BW_Edge2CtrDist(tgtMask);
 
+
+%% Get some parameters of components
+% Get Morphological parameters of image mask
+props = regionprops('table',ImDat.(labelF),{'Centroid','Area',...
+                    'Eccentricity','Perimeter','Solidity','PixelIdxList'});
+props.Circularity = (4*pi*props.Area)./(props.Perimeter.^2);
+props.Properties.VariableNames(strcmp(props.Properties.VariableNames,'PixelIdxList'))={'PixIDs'};
+
+% Add descriptive parameters
+props.ID = (1:height(props))';
+props.Type = repmat(string(GroupName),[height(props) 1]);
+
+%% Get separate images.
 % Stack Images (this approach lets us only call labelSeparate once!)
 ImStack = ImDat.RAW; % Add raw image to stack
 ImStack(:,:,4) = ones(imx,imy); % Add ones to stack to obtain mask.
@@ -37,7 +50,6 @@ if ~isempty(ExtraIms)
         ImStack(:,:,5+n)=ExtraIms{n};
     end
 end
-
 
 [Stacks, ~, pixrows, pixcols] =  labelSeparate(ImStack,ImDat.(labelF),'mask');
 
@@ -57,10 +69,11 @@ if ~isempty(ExtraIms)
     end
 end
 
-
-props = struct2table(props);
-props.ID = (1:height(props))';
-props.Type = repmat(string(GroupName),[height(props) 1]);
+%% Compute local centroid
+getFirstEntry = @(x) x(1);
+props.rowshift = cell2mat(cellfun(getFirstEntry,pixrows,'UniformOutput',false))'-1;
+props.colshift = cell2mat(cellfun(getFirstEntry,pixcols,'UniformOutput',false))'-1;
+props.LocalCentroid = props.Centroid-[props.colshift props.rowshift];
 end
 
 function LevelCell = getLevel(arr,lvl,type)

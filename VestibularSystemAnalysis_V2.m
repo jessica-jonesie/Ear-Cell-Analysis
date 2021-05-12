@@ -42,3 +42,27 @@ end
 % Remove Support cells that are not within 'NeighborThresh' pixels of a
 % hair cell. 
 ImDat = RefineCellMasks(ImDat,'ClearBoundary',true,'NeighborThresh',7);
+
+%% Isolate Cells, Compute Polarity Map, Assign IDs, and cell type.
+% Isolate and store image channels. 
+ImDat.ImR = ImDat.RAW(:,:,1);
+ImDat.ImG = ImDat.RAW(:,:,2);
+ImDat.ImB = ImDat.RAW(:,:,3);
+
+switch Approach
+    case 'Manual'
+        % For Manual, isolate the polar bodies from the polar body mask.
+        [ImDat,HairProps] = SepImageComps(ImDat,'GroupName','Hair',...
+        'ExtraIms',{ImDat.PolarBodyMask},...
+        'ExtraNames',{'PBMask'});
+    
+        [ImDat,SupportProps] = SepImageComps(ImDat,'GroupName','Support',...
+        'ExtraIms',{ImDat.PolarBodyMask},...
+        'ExtraNames',{'PBMask'});
+    case 'Auto'
+        % For Auto, the polar bodies are segmented on a cell by cell basis.
+        [ImDat,HairProps] = SepImageComps(ImDat,'GroupName','Hair');
+        [ImDat,SupportProps] = SepImageComps(ImDat,'GroupName','Support');
+end
+
+CellProps = [HairProps;SupportProps]; % Combine the two groups;

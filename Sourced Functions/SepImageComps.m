@@ -39,15 +39,15 @@ props.Type = repmat(string(GroupName),[height(props) 1]);
 
 %% Get separate images.
 % Stack Images (this approach lets us only call labelSeparate once!)
-ImStack = ImDat.RAW; % Add raw image to stack
-ImStack(:,:,4) = ones(imx,imy); % Add ones to stack to obtain mask.
-ImStack(:,:,5) = ImDat.(polF); % Add polarity map to stack.
+ImStack = double(ImDat.RAW); % Add raw image to stack
+ImStack(:,:,4) = double(ones(imx,imy)); % Add ones to stack to obtain mask.
+ImStack(:,:,5) = double(ImDat.(polF)); % Add polarity map to stack.
 
 % Append extra images if necessary;
 if ~isempty(ExtraIms)
     for n=1:length(ExtraIms)
         imtype{n} = class(ExtraIms{n});
-        ImStack(:,:,5+n)=ExtraIms{n};
+        ImStack(:,:,5+n)=double(ExtraIms{n});
     end
 end
 

@@ -9,7 +9,7 @@ addpath('Results')
 EllipticalApproximation = false;
 Approach = 'Manual';
 
-%% Analyze Image
+%% Select Image
 % Select RAW Image
 [file,path] = uigetfile('*.png');
 root = extractBefore(file,'RAW.png');
@@ -43,7 +43,9 @@ end
 % hair cell. 
 ImDat = RefineCellMasks(ImDat,'ClearBoundary',true,'NeighborThresh',7);
 
-%% Isolate Cells, Compute Polarity Map, Assign IDs, and cell type.
+%% Isolate Cells, Compute Polarity Map, Assign IDs, and cell type. 
+%  And Get some morphological properties of cells
+
 % Isolate and store image channels. 
 ImDat.ImR = ImDat.RAW(:,:,1);
 ImDat.ImG = ImDat.RAW(:,:,2);
@@ -52,17 +54,54 @@ ImDat.ImB = ImDat.RAW(:,:,3);
 switch Approach
     case 'Manual'
         % For Manual, isolate the polar bodies from the polar body mask.
+        
+        % Isolate Hair cells and related features
         [ImDat,HairProps] = SepImageComps(ImDat,'GroupName','Hair',...
         'ExtraIms',{ImDat.PolarBodyMask},...
         'ExtraNames',{'PBMask'});
     
+        % Isolate Support cells and related features
         [ImDat,SupportProps] = SepImageComps(ImDat,'GroupName','Support',...
         'ExtraIms',{ImDat.PolarBodyMask},...
         'ExtraNames',{'PBMask'});
+    
     case 'Auto'
         % For Auto, the polar bodies are segmented on a cell by cell basis.
+        
+        % Isolate Hair cells and related features
         [ImDat,HairProps] = SepImageComps(ImDat,'GroupName','Hair');
+        
+        %%% Placeholder - Consolidate disparate polar bodies %%%
+        % Compute overlap between polar bodies.
+        % If they do not overlap by a specified threshold, omit them.
+        % Use the overlap as the polar body mask.
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        % Isolate Support cells and related features
         [ImDat,SupportProps] = SepImageComps(ImDat,'GroupName','Support');
 end
 
 CellProps = [HairProps;SupportProps]; % Combine the two groups;
+
+%%%%%%%%%%% After here manual and automatic should be the same %%%%%%%%%%%
+
+%% Calculate Visual Center, Polarity, Orientation and other morphological features.
+[CellProps] = Masks2CtrPolOri(CellProps);
+
+%% Get Reference Line and compute normalized orientation
+[BoundPts,UserPts] = GetBoundaryLine(ImDat.RAW,'preview',true);
+
+% Generate reference angles according to an inverse square rule.
+[~,CellProps.RefAngle] = pt2ptInfluence(CellProps.Center,BoundPts,'inverse',2);
+CellProps.NormOrientation = wrapTo360(CellProps.Orientation-CellProps.RefAngle);
+
+%% Rebuild Masks
+ImDat.RHairCellMask = false(imx,imy);
+ImDat.RSupportCellMask = ImDat.RHairCellMask;
+ImDat.RHairCellMask(cell2mat(CellProps.PixIDs(CellProps.Type=='Hair')))=true;
+ImDat.RSupportCellMask(cell2mat(CellProps.PixIDs(CellProps.Type=='Support')))=true;
+%% Save Results
+curtime = qdt('Full');
+
+savename = strcat(root,Approach,'_','data','_',curtime,'.mat');
+save(fullfile(path,savename),'CellProps','ImDat','BoundPts');

@@ -50,6 +50,8 @@ if pad
 end
 
 %%
+answer = 'No';
+while strcmp(answer,'No')
 fH=figure;
 ax=imshow(im);
 roi=drawpolyline;
@@ -86,17 +88,21 @@ switch Interp
       
     BoundPts = [u v];
     
-    if preview
-        imshow(im)
-        hold on
-        plot(BoundPts(:,1),BoundPts(:,2),'-r')
-        plot(UserPts(:,1),UserPts(:,2),'.b','MarkerSize',15)
-        
-        h=helpdlg('Push OK to continue');
-        uiwait(h);
-    end
+
 end
 
+%% Preview results
+fH2 = figure;
+imshow(im)
+hold on
+plot(BoundPts(:,1),BoundPts(:,2),'-r')
+plot(UserPts(:,1),UserPts(:,2),'.b','MarkerSize',15)
+
+answer = questdlg('Accept?', ...
+    'Boundary Line Interpolation', ...
+    'Yes','No','Cancel','Cancel');
+close(fH2)
+end
 
 %% correct padding
 BoundPts = BoundPts-padsize(1:2);

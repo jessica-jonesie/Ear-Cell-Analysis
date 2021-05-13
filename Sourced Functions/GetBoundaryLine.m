@@ -29,7 +29,7 @@ addRequired(p,'im')
 validInterps = {'none','cubic'};
 checkInterp = @(x) any(validatestring(x,validInterps));
 addParameter(p,'Interp','cubic',checkInterp);
-addParameter(p,'ndiv',20,@isnumeric);
+addParameter(p,'ndiv',0.05,@isnumeric);
 addParameter(p,'pad',true,@islogical);
 addParameter(p,'closeselection',false,@islogical);
 addParameter(p,'preview',false,@islogical);
@@ -79,7 +79,12 @@ switch Interp
     %
     %  Prepare to evaluate the spline function at a grid 20 times finer.
     %
-      t = ( 1 : 1/ndiv : n )';
+%       t = ( 1 : 1/ndiv : n )';
+      
+      dist = sqrt(sum(diff(xy').^2,2))';
+      ppspan = ceil(dist.*ndiv);
+      
+      t=difflinspace(1:n,ppspan)';
     %
     %  Compute splines U and V that treat X and Y as functions of the index.
     %
@@ -95,7 +100,7 @@ end
 fH2 = figure;
 imshow(im)
 hold on
-plot(BoundPts(:,1),BoundPts(:,2),'-r')
+plot(BoundPts(:,1),BoundPts(:,2),'.-r')
 plot(UserPts(:,1),UserPts(:,2),'.b','MarkerSize',15)
 
 answer = questdlg('Accept?', ...
@@ -108,3 +113,9 @@ end
 BoundPts = BoundPts-padsize(1:2);
 end
 
+function [out] = difflinspace(v,n)
+out = [];
+for k=1:length(n)
+    out = [out linspace(v(k),v(k+1),n(k))];
+end
+end

@@ -32,6 +32,7 @@ ycompS = PolarS.*sind(OrientS);
 
 cbrewmap = flipud(cbrewer('div','Spectral',64));
 
+
 ImDat.HairCellMaskB = BuildMask(ImDat.RAW,CellProps(HID,:));
 ImDat.SupportCellMaskB = BuildMask(ImDat.RAW,CellProps(SID,:));
 %% Display Results

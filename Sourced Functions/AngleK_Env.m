@@ -9,7 +9,7 @@ addRequired(p,'alpha',@isnumeric)
 addParameter(p,'vecB',[])
 validSims = {'none','random','shuffle'};
 checkSims = @(x) any(validatestring(x,validSims));
-addParameter(p,'AngleSim','shuffle',checkSims);
+addParameter(p,'AngleSim','random',checkSims);
 addParameter(p,'OriginSim','none',checkSims);
 
 parse(p,scales,vecA,alpha,varargin{:});

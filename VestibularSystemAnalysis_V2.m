@@ -6,7 +6,6 @@ addpath('Data')
 addpath('Results')
 
 %% Analysis parameters
-EllipticalApproximation = false;
 Approach = 'Manual';
 
 %% Select Image
@@ -19,6 +18,13 @@ ImDat.RAW = imread(fullfile(path,file));
 
 % Get image size
 [imx,imy,imz] = size(ImDat.RAW);
+
+%% Select Analysis Region
+% This should allow the user to select a region, then mask the RAW image.
+% It should then crop the image down to the masked region. This will
+% improve computational time. 
+
+%%%% PLACEHOLDER %%%%
 
 %% Get cell masks (segment or read)
 switch Approach

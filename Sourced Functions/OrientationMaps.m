@@ -3,7 +3,7 @@ function [] = OrientationMaps(CellProps,ImDat,clrMap)
 %   Detailed explanation goes here
 %% Hair Cell Orientation
 figure
-data = CellProps.NormOrientation(CellProps.Type=='H');
+data = CellProps.NormOrientationR(CellProps.Type=='H');
 try
     bwIm = ImDat.HairCellMask;
     [datmap,fH,axH] = DataMap(bwIm,abs(data));
@@ -34,7 +34,7 @@ title('Hair Cell Orientation')
 
 %% Support Cell Orientation
 figure
-data = CellProps.NormOrientation(CellProps.Type=='S');
+data = CellProps.NormOrientationR(CellProps.Type=='S');
 try
     bwIm = ImDat.SupportCellMask;
     [datmap,fH,axH] = DataMap(bwIm,abs(data));

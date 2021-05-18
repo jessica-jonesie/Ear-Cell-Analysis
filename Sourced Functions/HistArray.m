@@ -13,11 +13,15 @@ addParameter(p,'splitcolors',[],@isnumeric);
 checkTypes = @(x) any(validatestring(x,{'default','polar'}));
 addParameter(p,'histtype','default',checkTypes);
 addParameter(p,'fixmax',false,@islogical);
+addParameter(p,'xlabel','',checkvar);
+addParameter(p,'ylabel','Frequency',checkvar);
 
 parse(p,props,var,splitvar,varargin{:})
 splitcolors = p.Results.splitcolors;
 histtype = p.Results.histtype;
 fixmax = p.Results.fixmax;
+xlab = p.Results.xlabel;
+ylab = p.Results.ylabel;
 
 %% Get number of types and split data
 [TypeID,ntypes,types] = GetTypeIDs(props,splitvar);
@@ -67,6 +71,8 @@ switch histtype
             title(types(k));
             axis square
             
+            xlabel(xlab)
+            ylabel(ylab)
             if fixmax
                 ylim([0 maxprob*1.05])
             end

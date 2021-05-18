@@ -106,7 +106,34 @@ ImDat.RHairCellMask = false(imx,imy);
 ImDat.RSupportCellMask = ImDat.RHairCellMask;
 ImDat.RHairCellMask(cell2mat(CellProps.PixIDs(CellProps.Type=='Hair')))=true;
 ImDat.RSupportCellMask(cell2mat(CellProps.PixIDs(CellProps.Type=='Support')))=true;
-%% Save Results
+
+
+%% Preview annotation, and allow user to remove individual cells
+[TypeID,ntypes,types] = GetTypeIDs(CellProps,'Type');
+
+if ~any(strcmp('AnnotIm',CellProps.Properties.VariableNames))
+    CellProps = AnnotIndIms(CellProps);
+%     save(fullfile(path,file),'CellProps','-append');
+end
+
+% Preview montage and allow user to remove cells.
+CellID = 1:height(CellProps)';
+RemID = []; % initialize removal ID; 
+msgbox('Click to select cells to remove. Hit enter when finished.')
+for k=1:ntypes
+%     figure
+    curprops = CellProps(TypeID{k},:);
+    curID = CellID(TypeID{k});
+    [selectedIms] = GetMontageIDs(curprops.AnnotIm);
+%     title(types{k});
+    RemID = [RemID curID(selectedIms)];
+%     montage(CellProps.AnnotIm(TypeID{k}))
+end
+
+% remove selected cells from analysis. 
+CellProps(RemID',:) = [];
+
+%% Save Results+
 curtime = qdt('Full');
 
 savename = strcat(root,Approach,'_','data','_',curtime,'.mat');

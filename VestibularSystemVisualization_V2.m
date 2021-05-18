@@ -30,6 +30,21 @@ CellSelectionOverlay(ImDat,TypeMap);
 figure
 VectorOverlayMap(ImDat,CellProps,'Type','splitcolors',TypeMap)
 
+%% Montage Preview
+% This takes awhile so save it the first time and never do it again.
+% Usually this is taken care of in the Vestibular System Analysis.
+figure
+if ~any(strcmp('AnnotIm',CellProps.Properties.VariableNames))
+    CellProps = AnnotIndIms(CellProps);
+    save(fullfile(path,file),'CellProps','-append');
+end
+
+for k=1:ntypes
+    figure
+    montage(CellProps.AnnotIm(TypeID{k}))
+    title(types{k})
+end
+
 %% Histograms
 % Normalized Orientation Histograms
 figure
@@ -39,7 +54,7 @@ figure
 % Polarity Histograms
 figure
 [hb] = HistArray(CellProps,'Polarity','Type','splitcolors',TypeMap,...
-    'fixmax',true);
+    'fixmax',true,'xlabel','Polarity');
 
 %% Model Cell Visualization
 figure
@@ -54,49 +69,28 @@ DataMapArray(ImDat,CellProps,'NormOrientation180','Type','cmap',OrientColMap,'va
 % Polarity Map
 DataMapArray(ImDat,CellProps,'Polarity','Type','cmap',PolarMap,'varlims',[0 1])
 
-%% Montage Preview
-% This takes awhile so save it the first time and never do it again.
-if ~any(strcmp('AnnotIm',CellProps.Properties.VariableNames))
-    CellProps = AnnotIndIms(CellProps);
-    save(fullfile(path,file),'CellProps');
-end
-
-for k=1:ntypes
-    figure
-    montage(CellProps.AnnotIm(TypeID{k}))
-    title(types{k})
-end
-
 %% Angle K
 mindim = min(size(ImDat.HairCellMask));
 scales = linspace(0,mindim/2,21)';
 scales(1) = [];
-[K,Ori,KsimMax,KsimMin,name] = AngleKTypeComp(scales,CellProps,'Type');
+if ~exist('AngK','var')
+    [AngK.Obs,AngK.Ori,AngK.simMax,AngK.simMin,AngK.name] = AngleKTypeComp(scales,CellProps,'Type');
+    AngK.scales = scales;
+    save(fullfile(path,file),'AngK','-append');
+end
 
 figure
 angkmap = MyBrewerMap('qual','Set1',ntypes.^2);
 hd = tight_subplot(ntypes,ntypes,0.1,0.1,0.1);
 for k=1:(ntypes^2)
     axes(hd(k));
-    plot(scales,K{k},'Color',angkmap(k,:));
+    plot(AngK.scales,AngK.Obs{k},'Color',angkmap(k,:));
     hold on 
-    plot(scales,KsimMax{k},'Color',angkmap(k,:));
-    plot(scales,KsimMin{k},'Color',angkmap(k,:));
+    plot(AngK.scales,AngK.simMax{k},'Color',angkmap(k,:),'LineStyle','--');
+    plot(AngK.scales,AngK.simMin{k},'Color',angkmap(k,:),'LineStyle','--');
     xlabel('Scale')
     ylabel('Population Alignment')
+    title(AngK.name{k})
     ylim([-1 1])
 end
 
-% AngleKTypeComp(scales,CellProps,'Type');
-% 
-% 
-% 
-% 
-% hvec.origin = CellProps.Center(HID,:);
-% hvec.angle = CellProps.NormOrientationR(HID);
-% hvec.magnitude = ones(sum(HID),1);
-% 
-% % Compute AngleK stats 
-% alpha = 0.01;
-% [Khh,Orihh] = AngleK(scales,hvec); % hair to hair
-% [~,KhhMax,KhhMin] = AngleK_Env(scales,hvec,alpha);

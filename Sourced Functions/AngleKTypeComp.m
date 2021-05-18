@@ -17,7 +17,7 @@ for n=1:ntypes
     for m=1:ntypes
         [K{n,m},Ori{n,m}] = AngleK(scales,hvec{n},hvec{m}); 
         [~,KsimMax{n,m},KsimMin{n,m}] = AngleK_Env(scales,hvec{n},alpha,'vecB',hvec{m});
-        name{n,m} = strcat(types{n},' to ',types{m});
+        name{n,m} = strcat(types{n},'To',types{m});
     end
 end
 

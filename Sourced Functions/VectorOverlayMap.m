@@ -8,12 +8,18 @@ addRequired(p,'ImDat')
 addRequired(p,'props',@istable);
 checkvar = @(x) ischar(x)|isstring(x);
 addRequired(p,'splitvar',checkvar);
+addParameter(p,'legendOn',true,@islogical);
+addParameter(p,'linewidth',2,@isnumeric);
+addParameter(p,'MarkerSize',6,@isnumeric);
 
 addParameter(p,'splitcolors',[],@isnumeric);
 
 parse(p,ImDat,props,splitvar,varargin{:});
 
 splitcolors = p.Results.splitcolors;
+legendOn = p.Results.legendOn;
+lwd = p.Results.linewidth;
+MkSz = p.Results.MarkerSize;
 
 %% split types
 [TypeID,ntypes,types] = GetTypeIDs(props,splitvar);
@@ -34,15 +40,19 @@ hold on;
 for k=1:ntypes
     curID = TypeID{k};
 plot(props.PBCentroid(curID,1),props.PBCentroid(curID,2),'o',...
-       'color',splitcolors(k,:),'LineWidth',2)
+       'color',splitcolors(k,:),'LineWidth',lwd,...
+       'MarkerSize',MkSz)
 quiver(props.Center(curID,1),props.Center(curID,2),...
        props.PBX(curID),props.PBY(curID),0,...
-       'LineWidth',2,'Color',splitcolors(k,:),'ShowArrowHead','off',...
-       'Marker','o','MarkerFaceColor',splitcolors(k,:))
+       'LineWidth',lwd,'Color',splitcolors(k,:),'ShowArrowHead','off',...
+       'Marker','o','MarkerSize',MkSz,...
+       'MarkerFaceColor',splitcolors(k,:))
 end
+if legendOn
 legendentries = strcat(repelem(types,ntypes),...
                     repmat({' Polar Body',' Center'}',[ntypes 1]));
 legend(legendentries,'Location','SouthOutside','Orientation','horizontal')
+end
 
 end
 

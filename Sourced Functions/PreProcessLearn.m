@@ -1,4 +1,4 @@
-function [bestScale,bestSNRatio,bestIm] = PreProcessLearn(rawimage,target)
+ function [bestScale,bestSNRatio,bestIm] = PreProcessLearn(rawimage,target)
 %PREPROCESSLEARN Learn the best pre-processing settings
 %   Detailed explanation goes here
 

@@ -263,7 +263,7 @@ switch oper
         conType = params{1};
         switch conType
             case 'local'
-                imgOut = localcontrast(imgIn,params{2},params{3});
+                imgOut = localcontrast(imgIn,params{2:end});
             case 'global'
                 imgOut = imadjust(imgIn);
         end

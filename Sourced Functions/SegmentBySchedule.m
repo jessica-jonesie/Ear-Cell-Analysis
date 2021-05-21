@@ -23,7 +23,7 @@ doSave = p.Results.save;
 
 % UI read images if not provided as inputs to SEGMENTBYSCHEDULE.
 if isempty(RawImage)
-    [imfile,impath] = uigetfile({'*.png;*.jpg;*.bmp'});
+    [imfile,impath] = uigetfile({'*.png;*.jpg;*.bmp'},'Multiselect','on');
     RawImage = {imread(fullfile(impath,imfile))};
 end
 
@@ -107,7 +107,7 @@ opTbl = table(allops,optype);
 opTbl.Properties.VariableNames = {'oper','type'};
 
 %% Run through image operations
-for m=1:length(RawImage)
+for m=1:length(RawImage) % place in loop in order to process sets of images later using identical settings. 
 ims{1}=RawImage{m}; % Initialize image
 for k=2:nsteps+1
     curOp = SegT.Oper{k-1};
@@ -288,8 +288,14 @@ end
 
 % Check mask type
 if ~isBW(mask)
-    
     warning('Masks must be binary (BW) images. No changes made')
+    imgOut = imgIn;
+    return
+end
+
+% Confirm that mask and image have the same resolution
+if ~sameRez(imgIn,mask)
+    warning('Mask and image must have the same resolution. No changes made')
     imgOut = imgIn;
     return
 end

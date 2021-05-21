@@ -5,24 +5,27 @@ function [imOut,ims] = SegmentBySchedule(varargin)
 p=inputParser;
 
 % Raw Image Input
-checkim = @(x) (isa(x,'uint8')|islogical(x))|isempty(x);
-addOptional(p,'RawImage',[],checkim);
+checkim = @(x) (isa(x,'uint8')||islogical(x))||iscell(x)||isempty(x);
+addParameter(p,'RawImage',[],checkim);
 
 % Schedule Input
-checkSched = @(x) istable(x)|isempty(x);
-addOptional(p,'Schedule',[],checkSched);
+checkSched = @(x) istable(x)||isempty(x);
+addParameter(p,'Schedule',[],checkSched);
+
+% Save
+addParameter(p,'save',false,@islogical);
 
 parse(p,varargin{:});
 
 RawImage = p.Results.RawImage;
 Schedule = p.Results.Schedule;
-
+doSave = p.Results.save;
 
 % UI read images if not provided as inputs to SEGMENTBYSCHEDULE.
 if isempty(RawImage)
     [imfile,impath] = uigetfile({'*.png;*.jpg;*.bmp'});
+    RawImage = {imread(fullfile(impath,imfile))};
 end
-RawImage = imread(fullfile(impath,imfile));
 
 if isempty(Schedule)
     [schedfile,schedpath] = uigetfile({'*.mat;*.xlsx'},...
@@ -34,26 +37,34 @@ schedfpath = fullfile(schedpath,schedfile);
 switch schedext
     case '.xlsx'
         [~,~,rawsched] = xlsread(schedfpath);
+        
+        Oper = rawsched(2:end,1);
+        params = rawsched(2:end,2:end);
+
+        nsteps = length(Oper);
+
+        remnan = @(x) any(isnan(x));
+
+        for k = 1:nsteps
+            % remove nans
+            tempcell = params(k,:);
+            tempcell(cellfun(remnan,tempcell)) = [];
+
+            parcell{k,1} = tempcell;
+        end
+        SegT = table(Oper);
+        SegT.Params = parcell;
     case '.mat'
+        try
+            load(schedfpath,'SegT')
+        catch
+            error('Invalid segmentation file. When using .mat the file must contain a variable named SegT that provides the segmentation schedule')
+        end
+        
+        nsteps = height(SegT);
 end
 
-%% Prepare Segment By Schedule
-Oper = rawsched(2:end,1);
-params = rawsched(2:end,2:end);
 
-nsteps = length(Oper);
-
-remnan = @(x) any(isnan(x));
-
-for k = 1:nsteps
-    % remove nans
-    tempcell = params(k,:);
-    tempcell(cellfun(remnan,tempcell)) = [];
-    
-    parcell{k,1} = tempcell;
-end
-SegT = table(Oper);
-SegT.Params = parcell;
 
 %% Define operation categories
 % morphological operations that use the bwmorph function.
@@ -80,7 +91,7 @@ otherpropfilts = {'circularity'}';
 maskops = {'mask','asmask','cropbymask','neighborthresh'}';
 
 % Basic image processing operations.
-imops = {'contrast','denoise','flatfield','channel','binarize','threshold','invert'}';
+imops = {'contrast','denoise','flatfield','channel','isolatechann','binarize','threshold','invert'}';
 
 allops = [bwmorphops;othermorphops;bwpropfilts;bwpropfiltsI;...
           otherpropfilts;maskops;imops];
@@ -96,7 +107,8 @@ opTbl = table(allops,optype);
 opTbl.Properties.VariableNames = {'oper','type'};
 
 %% Run through image operations
-ims{1}=RawImage; % Initialize image
+for m=1:length(RawImage)
+ims{1}=RawImage{m}; % Initialize image
 for k=2:nsteps+1
     curOp = SegT.Oper{k-1};
     curParams = SegT.Params{k-1};
@@ -106,7 +118,26 @@ for k=2:nsteps+1
     % pass all images to apply Operation so that they can be used in
     % various operations.
 end
+end
+
 imOut = ims{end}; % Final Output
+
+%% Save if prompted
+if doSave
+    if isRGB(imOut)||isGray(imOut)
+        filt = '*.png';
+    elseif isBW(imOut)
+        filt = '*.bmp';
+    end
+    
+    %get image name
+    [~,imname] =fileparts(imfile);
+    
+    suggName = fullfile(impath,strcat(imname,'_by_',schedname));
+    
+    [sfile, spath] = uiputfile(filt, 'Save Picture as',suggName);
+    imwrite(imOut,fullfile(spath,sfile));
+end
 end
 
 function imgOut = applyOperation(imgs,oper,type,params,impath)
@@ -120,6 +151,9 @@ switch type
         imgOut = applyMaskOp(imgs,oper,params,impath);
     case "impro"
         imgOut = applyImProcess(imgs{end},oper,params);
+    otherwise 
+        warning('Invalid Operation (%s). No change made at step %d.',oper,length(imgs));
+        imgOut = imgs{end};
 end
 end
 
@@ -296,9 +330,9 @@ switch oper
     case 'contrast' % apply global or local contrasting to the image. 
         conType = params{1};
         switch conType
-            case 'local'
+            case {'local','Local'}
                 imgOut = localcontrast(imgIn,params{2:end});
-            case 'global'
+            case {'global','Global'}
                 imgOut = imadjust(imgIn);
         end
         
@@ -319,7 +353,8 @@ switch oper
         
         chann = params{1};
         imgOut = getImChannel(imgIn,chann);
-        
+    case 'isolatechann'
+        imgOut = imadjust(ChannelIsolate(imgIn,params{1}));
     case 'binarize' % Convert a grayscale image to a binary BW image via thresholding
         if isRGB(imgIn)
             imgIn = rgb2gray(imgIn);

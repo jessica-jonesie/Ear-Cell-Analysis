@@ -1,4 +1,4 @@
-function [imOut,ims] = SegmentBySchedule(varargin)
+function [imOut,imM] = SegmentBySchedule(varargin)
 %SEGMENTBYSCHEDULE segment an an image according to a prescribed schedule. 
 %   Detailed explanation goes here
 %% parse inputs
@@ -23,14 +23,26 @@ doSave = p.Results.save;
 
 % UI read images if not provided as inputs to SEGMENTBYSCHEDULE.
 if isempty(RawImage)
-    [imfile,impath] = uigetfile({'*.png;*.jpg;*.bmp'},'Multiselect','on');
-    RawImage = {imread(fullfile(impath,imfile))};
+%     [imfile,impath] = uigetfile({'*.png;*.jpg;*.bmp'},'Multiselect','on');
+%     RawImage = {imread(fullfile(impath,imfile))};
+    [RawImage,imfiles,impath] = uigetimages;
+    imfile= imfiles{1};
+else
+    impath = pwd;
+    imfile = 'manual.png';
 end
 
 if isempty(Schedule)
     [schedfile,schedpath] = uigetfile({'*.mat;*.xlsx'},...
         'Select Segmentation Schedule',impath);
+    
     [~,schedname,schedext] = fileparts(schedfile);
+else
+    SegT = Schedule;
+    schedfile = 'manualsched.mat';
+    schedpath = pwd;
+    schedname = 'manualsched';
+    schedext = 'manual';
 end
 
 schedfpath = fullfile(schedpath,schedfile);
@@ -61,10 +73,13 @@ switch schedext
             error('Invalid segmentation file. When using .mat the file must contain a variable named SegT that provides the segmentation schedule')
         end
         
-        nsteps = height(SegT);
+    case 'manual'
+        if ~istable(SegT)
+            error('schedpath must be a table providing the segmentation schedule operations and parameters')
+        end
 end
 
-
+nsteps = height(SegT);
 
 %% Define operation categories
 % morphological operations that use the bwmorph function.
@@ -118,9 +133,11 @@ for k=2:nsteps+1
     % pass all images to apply Operation so that they can be used in
     % various operations.
 end
+   imM(:,m)=ims';
+   clear ims;
 end
 
-imOut = ims{end}; % Final Output
+imOut = imM(end,:); % Final Output
 
 %% Save if prompted
 if doSave
@@ -128,10 +145,12 @@ if doSave
         filt = '*.png';
     elseif isBW(imOut)
         filt = '*.bmp';
+    elseif iscell(imOut)
+        filt = '*.mat';
     end
     
     %get image name
-    [~,imname] =fileparts(imfile);
+    [~,imname] = fileparts(imfile);
     
     suggName = fullfile(impath,strcat(imname,'_by_',schedname));
     
@@ -406,6 +425,7 @@ end
 function [filtim] = getPriorImage(imgs,imSpec,impath)
     % access a previous image in the segmentation scheme or another image in the raw images directory. 
          nIms = length(imgs); % no. of images;
+         imgIn = imgs{end};
         if isnumeric(imSpec) % handle image id instance
             imID = imSpec+1;
             if ismember(imID,1:(nIms-1)) % valid string to previous image.

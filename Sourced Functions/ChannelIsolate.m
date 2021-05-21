@@ -20,11 +20,11 @@ if ~isa(image,'uint8')
 end
 
 
-if ismember(channel,{'R','red'})
+if ismember(channel,{'R','red','Red','RED','r'})
     imageOut = imsubtract(imsubtract(r,b),g);
-elseif ismember(channel,{'B','blue'})
+elseif ismember(channel,{'B','blue','Blue','b','BLUE'})
     imageOut = imsubtract(imsubtract(b,r),g);
-elseif ismember(channel,{'G','green'})
+elseif ismember(channel,{'G','g','green','Green','GREEN'})
     imageOut = imsubtract(imsubtract(g,b),r);
 else
     error('Invalid channel Identifier')

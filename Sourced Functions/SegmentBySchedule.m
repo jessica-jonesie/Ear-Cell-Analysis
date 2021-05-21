@@ -17,6 +17,7 @@ parse(p,varargin{:});
 RawImage = p.Results.RawImage;
 Schedule = p.Results.Schedule;
 
+
 % UI read images if not provided as inputs to SEGMENTBYSCHEDULE.
 if isempty(RawImage)
     [imfile,impath] = uigetfile({'*.png;*.jpg;*.bmp'});
@@ -76,10 +77,10 @@ bwpropfiltsI = {'maxintensity','minintensity','meanintensity'}';
 otherpropfilts = {'circularity'}';
 
 % mask operations
-maskops = {'mask','remcontact','neighbordist'}';
+maskops = {'mask','asmask','cropbymask','neighborthresh'}';
 
 % Basic image processing operations.
-imops = {'contrast','denoise','flatfield','channel','threshold','invert'}';
+imops = {'contrast','denoise','flatfield','channel','binarize','threshold','invert'}';
 
 allops = [bwmorphops;othermorphops;bwpropfilts;bwpropfiltsI;...
           otherpropfilts;maskops;imops];
@@ -116,7 +117,7 @@ switch type
         imgOut = applyPropFilt(imgs,oper,type,params,impath);
     case "mask"
         % set mask 
-        imgOut = applyMaskOp(imgs{end},oper,mask);
+        imgOut = applyMaskOp(imgs,oper,params,impath);
     case "impro"
         imgOut = applyImProcess(imgs{end},oper,params);
 end
@@ -170,6 +171,7 @@ if ~isBW(imgIn)
     return
 end
 
+
 switch type
     case "bwpropfilt"
         % Convert params array to params accepted by bwpropfilt
@@ -181,27 +183,7 @@ switch type
         % name of an image with the same resolution stored in the same
         % directory as the Segmentation schedule.
         
-        if isnumeric(params{1}) % handle image id instance
-            imID = params{1}+1;
-            if ismember(imID,1:(nIms-1)) % valid string to previous image.
-            
-                filtim = imgs{imID}; % filter image
-                if (~isRGB(filtim)&&~isGray(filtim))
-                    warning('Filter image must be grayscale or RGB. No filter applied.')
-                    imgOut = imgIn;
-                    return
-                end
-            else
-                warning('Invalid image ID. No filter applied')
-                imgOut = imgIn;
-                return
-            end
-        elseif ischar(params{1}) % handle image file instance.
-            imID = params{1};
-            if exist(fullfile(impath,imID),'file')==2
-                filtim = imread(fullfile(impath,imID));
-            end
-        end
+        [filtim] = getPriorImage(imgs,params{1},impath);
         
         % process channel specification
         channel = params{2}; % valid channel types are R, G, B, or all
@@ -221,9 +203,12 @@ switch type
         filtparms = getFiltParms(params(3:end));
         
         imgOut = bwpropfilt(imgIn,filtim,oper,filtparms{:});
-    case "otherpropfilt"
+    case "otherpropfilts"
         switch oper
             case 'circularity'
+                filtparms = getFiltParms(params);
+                imgOut = bwcircfilt(imgIn,filtparms{:});
+
         end
         
 end
@@ -231,7 +216,9 @@ end
 
 end
 
-function imgOut = applyMaskOp(imgIn,oper,mask)
+function imgOut = applyMaskOp(imgs,oper,params,impath)
+imgIn = imgs{end};
+
 % Check image type
 if ~(isRGB(imgIn)||isGray(imgIn)||isBW(imgIn))
     imWarnMsg(oper,{'RGB','grayscale','BW'})
@@ -239,13 +226,50 @@ if ~(isRGB(imgIn)||isGray(imgIn)||isBW(imgIn))
     return
 end
 
+% separate mask params from other params.
+mask = getPriorImage(imgs,params{1},impath);
+
+remparams = params(2:end);
+
+% reverse the relationship between image and mask. Use the current image as
+% a way to mask a referenced image. 
+if strcmpi(oper,'asmask') 
+    tmask = mask;
+    timg = imgIn;
+    
+    imgIn = tmask;
+    mask = timg;
+end
+
+
 % Check mask type
 if ~isBW(mask)
+    
     warning('Masks must be binary (BW) images. No changes made')
     imgOut = imgIn;
     return
 end
 
+switch oper
+    case {'mask','asmask'}
+        imgOut = maskImage(imgIn,mask,remparams{:});
+    case 'cropbymask'
+        if ~isBW(imgIn)||~isBW(mask)
+            warning('cropbymask requires two mask inputs. No change made')
+            imgOut = imgIn;
+            return
+        end
+        
+        imgOut = CropComp2Mask(imgIn,mask,remparams{:});
+    case 'neighborthresh'
+        if ~isBW(imgIn)||~isBW(mask)
+            warning('cropbymask requires two mask inputs. No change made')
+            imgOut = imgIn;
+            return
+        end
+        
+        [~,~,imgOut] = IsNeighbor(imgIn,mask,remparams{:});
+end
 
 end
 
@@ -286,14 +310,16 @@ switch oper
         chann = params{1};
         imgOut = getImChannel(imgIn,chann);
         
-    case 'threshold' % Convert a grayscale image to a binary BW image via thresholding
+    case 'binarize' % Convert a grayscale image to a binary BW image via thresholding
         if isRGB(imgIn)
             imgIn = rgb2gray(imgIn);
-            warning('RGB image converted to grayscale prior to thresholding')
+            warning('RGB image converted to grayscale prior to binarization')
         end
         imgOut = imbinarize(imgIn,params{:});
     case 'invert'
         imgOut = iminvert(imgIn);
+    case 'threshold'
+        imgOut = imthresh(imgIn,params{:});
 end
 end
 
@@ -324,4 +350,56 @@ function newparms = getFiltParms(params) % convert filter parameter inputs to in
             case 'topn'
                 newparms = params(2);
         end
+end
+
+function [filtim] = getPriorImage(imgs,imSpec,impath)
+    % access a previous image in the segmentation scheme or another image in the raw images directory. 
+         nIms = length(imgs); % no. of images;
+        if isnumeric(imSpec) % handle image id instance
+            imID = imSpec+1;
+            if ismember(imID,1:(nIms-1)) % valid string to previous image.
+            
+                filtim = imgs{imID}; % filter image
+                if (~isRGB(filtim)&&~isGray(filtim))
+                    warning('Filter image must be grayscale or RGB. No filter applied.')
+                    imgOut = imgIn;
+                    return
+                end
+            else
+                warning('Invalid image ID. No filter applied')
+                imgOut = imgIn;
+                return
+            end
+        elseif ischar(imSpec) % handle image file instance.
+            imID = imSpec;
+            if exist(fullfile(impath,imID),'file')==2
+                filtim = imread(fullfile(impath,imID));
+            end
+        end
+end
+
+function [maskedim] = maskImage(img,mask,varargin)
+p = inputParser;
+addRequired(p,'img');
+addRequired(p,'mask');
+addOptional(p,'invert','',@ischar);
+
+parse(p,img,mask,varargin{:});
+
+DoInvert = p.Results.invert;
+
+if isRGB(img) % duplicate the max for each channel in an rgb image.
+    mask = repmat(mask,[1 1 3]);
+end 
+
+maskedim = img;
+if strcmp(DoInvert,'invert')
+    maskedim(mask)=0;
+elseif strcmp(DoInvert,'')
+    maskedim(~mask)=0;
+else
+    warning('Invalid masking parameter. No mask applied')
+    maskedim = img;
+end
+
 end

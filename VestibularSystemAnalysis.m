@@ -6,7 +6,7 @@ addpath('Sourced Functions')
 addpath('Data')
 addpath('Results')
 
-imagename = 'RAW';
+imagename = 'P0_RAW';
 
 %% Analyze Image
 EllipticalApproximation = false;

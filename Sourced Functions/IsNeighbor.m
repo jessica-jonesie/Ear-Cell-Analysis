@@ -18,7 +18,18 @@ addRequired(p,'MaskA',@islogical)
 addRequired(p,'MaskB',@islogical)
 isposInt = @(x) (rem(x,round(x))==0)&x>0; % Confirm PixDistance is a positive integer. 
 addRequired(p,'PixDistance',isposInt);
+addOptional(p,'Invert','',@ischar);
+
 parse(p,MaskA,MaskB,PixDistance,varargin{:});
+doinvert = p.Results.Invert;
+
+if ismember(varargin,'flip')
+    tMaskA = MaskA;
+    tMaskB = MaskB;
+    
+    MaskB = tMaskA;
+    MaskA = tMaskB;
+end
 
 % check inputs
 [ax,ay]=size(MaskA);
@@ -47,6 +58,14 @@ test = overPix>0;
 labelIDs = (1:ncompsA)';
 
 keepComps = labelIDs(test);
-NeighborsMask = ismember(labels,keepComps);
+keepBW = ismember(labels,keepComps);
+
+if ismember(varargin,'invert')
+    NeighborsMask = MaskA;
+    NeighborsMask(keepBW)=0;
+else
+    NeighborsMask = keepBW;
+end
+
 end
 

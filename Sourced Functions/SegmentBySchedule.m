@@ -144,10 +144,20 @@ switch type
                 imgOut = imerode(imgIn,kern);
             case 'close'
                 kern = strel('disk',params{1});
-                imgOut = imclose(imgIn,kern);
+                if any(strcmp(params,'bycomp'))
+                    labim = imclose(bwlabel(imgIn),kern);
+                    imgOut = labim>0;
+                else
+                    imgOut = imclose(imgIn,kern);
+                end
             case 'open'
                 kern = strel('disk',params{1});
-                imgOut = imopen(imgIn,kern);
+                if any(strcmp(params,'bycomp'))
+                    labim = imopen(bwlabel(imgIn),kern);
+                    imgOut = labim>0;
+                else
+                    imgOut = imopen(imgIn,kern);
+                end
             case 'fill'
                 imgOut = imfill(imgIn,'holes');
             case 'clearborder'

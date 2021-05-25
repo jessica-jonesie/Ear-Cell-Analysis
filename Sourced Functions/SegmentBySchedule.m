@@ -50,6 +50,11 @@ switch schedext
     case '.xlsx'
         [~,~,rawsched] = xlsread(schedfpath);
         
+        % first remove empty rows (nan rows)
+        isnancell = @(x) any(isnan(x));
+        nanentries = cellfun(isnancell,rawsched);
+        rawsched(nanentries(:,1),:)=[];
+        
         Oper = rawsched(2:end,1);
         params = rawsched(2:end,2:end);
 
@@ -129,9 +134,14 @@ for k=2:nsteps+1
     curParams = SegT.Params{k-1};
     curType = opTbl.type(find(strcmp(opTbl.oper,curOp)));
     
+%     try
     ims{k} = applyOperation(ims,curOp,curType,curParams,impath);
     % pass all images to apply Operation so that they can be used in
     % various operations.
+%     catch
+%         error('Error during %s operation at step %d',curOp,k-1)
+%     end
+    
 end
    imM(:,m)=ims';
    clear ims;
@@ -170,7 +180,7 @@ switch type
         imgOut = applyMaskOp(imgs,oper,params,impath);
     case "impro"
         imgOut = applyImProcess(imgs{end},oper,params);
-    otherwise 
+    otherwise
         warning('Invalid Operation (%s). No change made at step %d.',oper,length(imgs));
         imgOut = imgs{end};
 end
@@ -358,7 +368,7 @@ switch oper
             case {'local','Local'}
                 imgOut = localcontrast(imgIn,params{2:end});
             case {'global','Global'}
-                imgOut = imadjust(imgIn);
+                imgOut = imadjust(imgIn,stretchlim(imgIn));
         end
         
     case 'denoise' % denoise by lightly blurring the image with a median filter.

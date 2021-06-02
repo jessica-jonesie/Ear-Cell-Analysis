@@ -25,6 +25,7 @@ if fixmax
         mcmap(:,:,k) = ModelCellMap(props.Polarity(TypeID{k}),...
             props.NormOrientation(TypeID{k}),...
             100,'pbradius',10,'kernType','circle','doplot',false);
+
     end
     maxd = round(max(mcmap(:)),1);
 end

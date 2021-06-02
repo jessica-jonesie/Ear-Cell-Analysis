@@ -88,7 +88,7 @@ nsteps = height(SegT);
 
 %% Define operation categories
 % morphological operations that use the bwmorph function.
-bwmorphops = {'remove','skel','bothat','bridge','clean','thicken',...
+bwmorphops = {'outline','skel','bothat','bridge','clean','thicken',...
               'thin','tophat'}';
           
 % all morphological operations.
@@ -196,6 +196,9 @@ end
 
 switch type
     case "bwmorph" % apply any of the morphological functions available in bwmorph.m
+        if strcmp(oper,'outline')
+            oper = 'remove';
+        end
         imgOut = bwmorph(imgIn,oper,params{:});
     case "othermorph" % apply other morphological operations
         switch oper

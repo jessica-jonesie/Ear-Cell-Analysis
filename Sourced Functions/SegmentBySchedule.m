@@ -78,6 +78,16 @@ switch schedext
             error('Invalid segmentation file. When using .mat the file must contain a variable named SegT that provides the segmentation schedule')
         end
         
+        % Retain only the Oper and Params columns. (The rest are not
+        % needed and can be removed.
+        [remID] = ~ismember(SegT.Properties.VariableNames,{'Oper','Params'});
+        SegT(:,remID) = [];
+        
+        % Duplicate operations may have asterisks in their names. remove
+        % them.
+        SegT.Oper = erase(SegT.Oper,"*");
+        
+        
     case 'manual'
         if ~istable(SegT)
             error('schedpath must be a table providing the segmentation schedule operations and parameters')
@@ -147,7 +157,7 @@ end
    clear ims;
 end
 
-imOut = imM(end,:); % Final Output
+imOut = imM{end}; % Final Output
 
 %% Save if prompted
 if doSave
@@ -203,13 +213,13 @@ switch type
     case "othermorph" % apply other morphological operations
         switch oper
             case 'dilate'
-                kern = strel('disk',params{1});
+                kern = strel('disk',ceil(params{1}));
                 imgOut = imdilate(imgIn,kern);
             case 'erode'
-                kern = strel('disk',params{1});
+                kern = strel('disk',ceil(params{1}));
                 imgOut = imerode(imgIn,kern);
             case 'close'
-                kern = strel('disk',params{1});
+                kern = strel('disk',ceil(params{1}));
                 if any(strcmp(params,'bycomp'))
                     labim = imclose(bwlabel(imgIn),kern);
                     imgOut = labim>0;
@@ -217,7 +227,7 @@ switch type
                     imgOut = imclose(imgIn,kern);
                 end
             case 'open'
-                kern = strel('disk',params{1});
+                kern = strel('disk',ceil(params{1}));
                 if any(strcmp(params,'bycomp'))
                     labim = imopen(bwlabel(imgIn),kern);
                     imgOut = labim>0;
@@ -303,7 +313,13 @@ if ~(isRGB(imgIn)||isGray(imgIn)||isBW(imgIn))
 end
 
 % separate mask params from other params.
-mask = getPriorImage(imgs,params{1},impath);
+
+if isempty(fileparts(params{1}))
+    mask = getPriorImage(imgs,params{1},impath);
+else
+    [impath,imname,imext] = fileparts(params{1});
+    mask = getPriorImage(imgs,[imname imext],impath);
+end
 
 remparams = params(2:end);
 
@@ -398,7 +414,12 @@ switch oper
             imgIn = rgb2gray(imgIn);
             warning('RGB image converted to grayscale prior to binarization')
         end
-        imgOut = imbinarize(imgIn,params{:});
+        if strcmp(params{1},'global')
+            imgOut = imbinarize(imgIn,params{2});
+        else
+            imgOut = imbinarize(imgIn,params{1});
+        end
+        
     case 'invert'
         imgOut = iminvert(imgIn);
     case 'threshold'
@@ -429,9 +450,9 @@ function newparms = getFiltParms(params) % convert filter parameter inputs to in
             case 'range'
                 newparms = {[params{2} params{3}]};
             case 'botn'
-                newparms = {params{2} 'smallest'} ;
+                newparms = {round(params{2}) 'smallest'} ;
             case 'topn'
-                newparms = params(2);
+                newparms = round(params(2));
         end
 end
 
@@ -477,9 +498,9 @@ if isRGB(img) % duplicate the max for each channel in an rgb image.
 end 
 
 maskedim = img;
-if strcmp(DoInvert,'invert')
+if ismember(DoInvert,{'invert','true'})
     maskedim(mask)=0;
-elseif strcmp(DoInvert,'')
+elseif ismember(DoInvert,{'','false'})
     maskedim(~mask)=0;
 else
     warning('Invalid masking parameter. No mask applied')

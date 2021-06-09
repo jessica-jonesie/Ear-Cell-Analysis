@@ -1,4 +1,4 @@
-function [imOut,imM] = SegmentBySchedule(varargin)
+function [imOut,imM,SegT] = SegmentBySchedule(varargin)
 %SEGMENTBYSCHEDULE segment an an image according to a prescribed schedule. 
 %   Detailed explanation goes here
 %% parse inputs
@@ -209,6 +209,10 @@ switch type
         if strcmp(oper,'outline')
             oper = 'remove';
         end
+        
+        if ismember(oper,{'skel','thin','thicken'})
+            params = {'inf'};
+        end
         imgOut = bwmorph(imgIn,oper,params{:});
     case "othermorph" % apply other morphological operations
         switch oper
@@ -220,7 +224,10 @@ switch type
                 imgOut = imerode(imgIn,kern);
             case 'close'
                 kern = strel('disk',ceil(params{1}));
-                if any(strcmp(params,'bycomp'))
+                if length(params)==1
+                    params{2} = 'false';
+                end
+                if ismember(params{2},{'bycomp','true'})
                     labim = imclose(bwlabel(imgIn),kern);
                     imgOut = labim>0;
                 else
@@ -228,7 +235,11 @@ switch type
                 end
             case 'open'
                 kern = strel('disk',ceil(params{1}));
-                if any(strcmp(params,'bycomp'))
+                if length(params)==1
+                    params{2} = 'false';
+                end
+                
+                if ismember(params{2},{'bycomp','true'})
                     labim = imopen(bwlabel(imgIn),kern);
                     imgOut = labim>0;
                 else
@@ -361,7 +372,7 @@ switch oper
         imgOut = CropComp2Mask(imgIn,mask,remparams{:});
     case 'neighborthresh'
         if ~isBW(imgIn)||~isBW(mask)
-            warning('cropbymask requires two mask inputs. No change made')
+            warning('neighborthresh requires two mask inputs. No change made')
             imgOut = imgIn;
             return
         end
@@ -392,10 +403,18 @@ switch oper
         
     case 'denoise' % denoise by lightly blurring the image with a median filter.
         kernRad = params{1};
-        imgOut = medfilt2(imgIn,[1 1].*kernRad);
+        if isRGB(imgIn)
+            imgIn =rgb2gray(imgIn);
+            warning('Denoising requires grayscale input. RGB image converted to grayscale before processing')
+        end
+        imgOut = medfilt2(imgIn,[1 1].*ceil(kernRad));
         
     case 'flatfield' % flatfield an image to correct uneven illumination.
         sigma = params{1};
+        if isRGB(imgIn)
+            imgIn = rgb2gray(imgIn);
+            warning('Flatfielding requires grayscale input. RGB image converted to grayscale before processing');
+        end
         imgOut = imflatfield(imgIn,sigma);
         
     case 'channel' % Select a specific channel of an RGB image.
@@ -406,6 +425,7 @@ switch oper
         end
         
         chann = params{1};
+        
         imgOut = getImChannel(imgIn,chann);
     case 'isolatechann'
         imgOut = imadjust(ChannelIsolate(imgIn,params{1}));
@@ -429,7 +449,11 @@ end
 
 function msg = imWarnMsg(oper,validtypes) % Generate a custom warning message.
     if length(validtypes)>2
-        typeStr = insertBefore(strjoin(validtypes,', '),validtypes(end),'or ');
+        try
+            typeStr = insertBefore(strjoin(validtypes,', '),validtypes(end),'or ');
+        catch
+            typeStr = 'rgb';
+        end
     elseif length(validtypes)==2
         typeStr = strjoin(validtypes,' or ');
     else

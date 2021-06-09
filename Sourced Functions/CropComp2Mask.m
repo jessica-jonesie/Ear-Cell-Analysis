@@ -25,7 +25,7 @@ function [BW2] = CropComp2Mask(BW,mask,varargin)
 % default
 labs = bwlabel(BW);
 
-if ismember('invert',varargin)
+if ismember('invert',varargin)||(length(varargin)==2&&strcmp(varargin{1},'true'))
     mask = ~mask;
 end
 
@@ -34,7 +34,7 @@ inmask = unique(labs(mask));
 inmask(inmask==0)=[];
 BW2 = ismember(labs,inmask);
 
-if ismember('hard',varargin)
+if ismember('hard',varargin)||(length(varargin)==2&&strcmp(varargin{2},'true'))
     notinmask = unique(labs(~mask));
     notinmask(notinmask==0)=[];
     remMask = ismember(labs,notinmask);

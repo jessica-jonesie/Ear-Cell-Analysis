@@ -353,7 +353,7 @@ try
         mask = getPriorImage(ImArray,[imname imext],impath);
     end
 catch
-    warning('Improper mask specifier. Must be an ID or file name')
+    warning('Improper mask specifier. Must be an ID or file name. Mask not applied')
     imgOut = imgIn;
     return
 end

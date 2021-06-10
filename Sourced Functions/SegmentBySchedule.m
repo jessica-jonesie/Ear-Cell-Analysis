@@ -15,11 +15,15 @@ addParameter(p,'Schedule',[],checkSched);
 % Save
 addParameter(p,'save',false,@islogical);
 
+% Optional imarray
+addParameter(p,'ImArray',{},@iscell);
+
 parse(p,varargin{:});
 
 RawImage = p.Results.RawImage;
 Schedule = p.Results.Schedule;
 doSave = p.Results.save;
+ImArray = p.Results.ImArray;
 
 % UI read images if not provided as inputs to SEGMENTBYSCHEDULE.
 if isempty(RawImage)
@@ -145,7 +149,7 @@ for k=2:nsteps+1
     curType = opTbl.type(find(strcmp(opTbl.oper,curOp)));
     
 %     try
-    ims{k} = applyOperation(ims,curOp,curType,curParams,impath);
+    ims{k} = applyOperation(ims,curOp,curType,curParams,impath,ImArray);
     % pass all images to apply Operation so that they can be used in
     % various operations.
 %     catch
@@ -179,15 +183,15 @@ if doSave
 end
 end
 
-function imgOut = applyOperation(imgs,oper,type,params,impath)
+function imgOut = applyOperation(imgs,oper,type,params,impath,ImArray)
 switch type
     case {"bwmorph","othermorph"}
         imgOut = applyMorphOp(imgs{end},oper,type,params);
     case {"otherpropfilts","bwpropfilt","bwpropfiltI"}
-        imgOut = applyPropFilt(imgs,oper,type,params,impath);
+        imgOut = applyPropFilt(imgs,oper,type,params,impath,ImArray);
     case "mask"
         % set mask 
-        imgOut = applyMaskOp(imgs,oper,params,impath);
+        imgOut = applyMaskOp(imgs,oper,params,impath,ImArray);
     case "impro"
         imgOut = applyImProcess(imgs{end},oper,params);
     otherwise
@@ -257,10 +261,16 @@ end
 
 end
 
-function imgOut = applyPropFilt(imgs,oper,type,params,impath)
+function imgOut = applyPropFilt(imgs,oper,type,params,impath,ImArray)
 
 imgIn = imgs{end}; % current image
 nIms = length(imgs); % no. of images;
+
+% Handle optional argument ImArray. If empty set equal to imgIn.
+if isempty(ImArray)
+    ImArray = imgs;
+end
+
 % Check image type
 if ~isBW(imgIn)
     imWarnMsg(oper,'BW')
@@ -280,7 +290,10 @@ switch type
         % name of an image with the same resolution stored in the same
         % directory as the Segmentation schedule.
         
-        [filtim] = getPriorImage(imgs,params{1},impath);
+        if strcmpi(params{1},'Raw')
+            params{1} = 1;
+        end
+        [filtim] = getPriorImage(ImArray,params{1},impath);
         
         % process channel specification
         channel = params{2}; % valid channel types are R, G, B, or all
@@ -313,8 +326,12 @@ end
 
 end
 
-function imgOut = applyMaskOp(imgs,oper,params,impath)
+function imgOut = applyMaskOp(imgs,oper,params,impath,ImArray)
 imgIn = imgs{end};
+
+if isempty(ImArray)
+    ImArray = imgs;
+end
 
 % Check image type
 if ~(isRGB(imgIn)||isGray(imgIn)||isBW(imgIn))
@@ -326,10 +343,10 @@ end
 % separate mask params from other params.
 
 if isempty(fileparts(params{1}))
-    mask = getPriorImage(imgs,params{1},impath);
+    mask = getPriorImage(ImArray,params{1},impath);
 else
     [impath,imname,imext] = fileparts(params{1});
-    mask = getPriorImage(imgs,[imname imext],impath);
+    mask = getPriorImage(ImArray,[imname imext],impath);
 end
 
 remparams = params(2:end);

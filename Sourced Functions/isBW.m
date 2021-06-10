@@ -9,7 +9,7 @@ try
 
     if ~test
         test=(sum(im==0,'all')+sum(im==1,'all'))==numel(im);
-        warning('Recommend converting binary images to logical matrices');
+%         warning('Recommend converting binary images to logical matrices');
     end
 catch
     test = false;

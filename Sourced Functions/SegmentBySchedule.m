@@ -342,12 +342,22 @@ end
 
 % separate mask params from other params.
 
-if isempty(fileparts(params{1}))
-    mask = getPriorImage(ImArray,params{1},impath);
-else
-    [impath,imname,imext] = fileparts(params{1});
-    mask = getPriorImage(ImArray,[imname imext],impath);
+try
+    if isnumeric(params{1})&&params{1}>0
+        mask = getPriorImage(ImArray,params{1},impath);
+    elseif isnumeric(params{1})&&params{1}==0
+        [imx,imy,imz] = size(imgIn);
+        mask = true(imx,imy);
+    else
+        [impath,imname,imext] = fileparts(params{1});
+        mask = getPriorImage(ImArray,[imname imext],impath);
+    end
+catch
+    warning('Improper mask specifier. Must be an ID or file name')
+    imgOut = imgIn;
+    return
 end
+
 
 remparams = params(2:end);
 

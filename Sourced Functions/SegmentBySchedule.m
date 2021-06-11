@@ -434,7 +434,7 @@ switch oper
             imgIn =rgb2gray(imgIn);
             warning('Denoising requires grayscale input. RGB image converted to grayscale before processing')
         end
-        imgOut = medfilt2(imgIn,[1 1].*ceil(kernRad));
+        imgOut = medfilt2(imgIn,[1 1].*ceil(kernRad),'symmetric');
         
     case 'flatfield' % flatfield an image to correct uneven illumination.
         sigma = params{1};

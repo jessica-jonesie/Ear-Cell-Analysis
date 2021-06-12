@@ -503,7 +503,7 @@ function newparms = getFiltParms(params) % convert filter parameter inputs to in
             case 'botn'
                 newparms = {round(params{2}) 'smallest'} ;
             case 'topn'
-                newparms = round(params(2));
+                newparms = {round(params{2})};
         end
 end
 

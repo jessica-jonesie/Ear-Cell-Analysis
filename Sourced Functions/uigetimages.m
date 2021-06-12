@@ -4,27 +4,40 @@ function [ImArray,imfiles,impath] = uigetimages(varargin)
 %   Detailed explanation goes here
 % Default
 if isempty(varargin)
-    [imfile,impath] = uigetfile({'*.png;*.jpg;*.bmp'},'Multiselect','on');
+    [imfile,impath] = uigetfile({'*.png;*.jpg;*.bmp*;*.mat'},'Multiselect','on');
 else
     [imfile,impath] = uigetfile(varargin{:});
 end
+filedir = fullfile(impath,imfile);
 
-if iscell(imfile)
-    nIms = length(imfile);
-    imfiles = imfile;
-else
-    nIms = 1;
-    imfiles{1}=imfile;
+[~,~,ext] = fileparts(filedir);
+
+switch ext
+    case '.mat'
+        load(filedir);
+        if exist('ims','var')
+            ImArray = ims;
+            imfiles{1} = imfile;
+        else
+            error('To import an image array you must load .mat file that stores the image array as a structure named ims');
+        end
+    otherwise 
+        if iscell(imfile)
+            nIms = length(imfile);
+            imfiles = imfile;
+        else
+            nIms = 1;
+            imfiles{1}=imfile;
+        end
+
+
+        ImArray = cell(nIms,1);
+        if nIms==1
+            ImArray{1} = imread(fullfile(impath,imfile));
+        else
+            for k = 1:length(imfile)
+                ImArray{k} = imread(fullfile(impath,imfile{k}));
+            end
+        end
 end
-
-
-ImArray = cell(nIms,1);
-if nIms==1
-    ImArray{1} = imread(fullfile(impath,imfile));
-else
-    for k = 1:length(imfile)
-        ImArray{k} = imread(fullfile(impath,imfile{k}));
-    end
-end
-
 end

@@ -1,4 +1,4 @@
-function [im,sepmasks] = bwEllipse(Resolution,Centers,MajorAxes,MinorAxes,Angles)
+function [im,sepmasks] = bwEllipse(Resolution,Centers,MajorAxes,MinorAxes,Angles,varargin)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 zeroes = zeros(Resolution(1),Resolution(2),3);
@@ -18,7 +18,11 @@ for n=1:nEllipses
 %     im = draw_ellipse(ycoord,xcoord,MajorAxis/2,MinorAxis/2,-1*Angle,zeroes,[255 255 255]);
     
     ellipses = draw_ellipse(ycoord,xcoord,MajorAxis/2,MinorAxis/2,-1*Angle,zeroes,[255 255 255]);
-    sepmasks{n} = imbinarize(rgb2gray(ellipses));
+    if nargin==6
+        sepmask = [];
+    else
+        sepmasks{n} = imbinarize(rgb2gray(ellipses));
+    end
     im = im+ellipses;
     
     waitbar(n/nr,fW,'Ellipsifying...')

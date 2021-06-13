@@ -5,6 +5,5 @@ imRez = size(im);
 
 props = regionprops('table',im,{'Centroid','MajorAxisLength','MinorAxisLength','Orientation'});
 
-ellipseim = bwEllipse(imRez,props.Centroid,props.MajorAxisLength,props.MinorAxisLength,props.Orientation);
+ellipseim = bwEllipse(imRez,props.Centroid,props.MajorAxisLength,props.MinorAxisLength,props.Orientation,'off');
 end
-

@@ -267,7 +267,7 @@ imgIn = imgs{end}; % current image
 nIms = length(imgs); % no. of images;
 
 % Handle optional argument ImArray. If empty set equal to imgIn.
-if isempty(ImArray)
+if isempty(ImArray)||length(ImArray)==1
     ImArray = imgs;
 end
 
@@ -295,6 +295,10 @@ switch type
         end
         [filtim] = getPriorImage(ImArray,params{1},impath);
         
+        if iscell(filtim)
+            filtim = filtim{1};
+        end
+        
         % process channel specification
         channel = params{2}; % valid channel types are R, G, B, or all
         if strcmpi(channel,'all')
@@ -311,6 +315,8 @@ switch type
         
         % Convert params array to params accepted by bwpropfilt
         filtparms = getFiltParms(params(3:end));
+        
+        
         
         imgOut = bwpropfilt(imgIn,filtim,oper,filtparms{:});
     case "otherpropfilts"
@@ -349,7 +355,7 @@ try
         [imx,imy,imz] = size(imgIn);
         mask = true(imx,imy);
     else
-        [impath,imname,imext] = fileparts(params{1});
+        [~,imname,imext] = fileparts(params{1});
         mask = getPriorImage(ImArray,[imname imext],impath);
     end
 catch
@@ -516,6 +522,10 @@ function [filtim] = getPriorImage(imgs,imSpec,impath)
             if ismember(imID,1:(nIms-1)) % valid string to previous image.
             
                 filtim = imgs{imID}; % filter image
+                if iscell(filtim)
+                    filtim=filtim{1};
+                end
+                
                 if (~isRGB(filtim)&&~isGray(filtim))
                     warning('Filter image must be grayscale or RGB. No filter applied.')
                     imgOut = imgIn;
@@ -532,6 +542,7 @@ function [filtim] = getPriorImage(imgs,imSpec,impath)
                 filtim = imread(fullfile(impath,imID));
             end
         end
+        
 end
 
 function [maskedim] = maskImage(img,mask,varargin)

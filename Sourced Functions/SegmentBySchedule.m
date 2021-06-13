@@ -107,7 +107,7 @@ bwmorphops = {'outline','skel','bothat','bridge','clean','thicken',...
           
 % all morphological operations.
 othermorphops = {'dilate','erode','close','open','clearborder',...
-            'watershed'}';
+            'watershed','ellipsify'}';
 
 % proper filters that use the bwpropfilt function.
 bwpropfilts = {'area','convexarea','eccentricity','equivdiameter',...
@@ -261,6 +261,8 @@ switch type
                 imgOut = imclearborder(imgIn);
             case 'watershed'
                 imgOut = imWatershed(imgIn);
+            case 'ellipsify'
+                imgOut = ellipsify(imgIn);
         end
 end
 

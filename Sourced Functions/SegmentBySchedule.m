@@ -143,13 +143,19 @@ opTbl.Properties.VariableNames = {'oper','type'};
 %% Run through image operations
 for m=1:length(RawImage) % place in loop in order to process sets of images later using identical settings. 
 ims{1}=RawImage{m}; % Initialize image
+if isempty(ImArray)
+    mImArray = [];
+else
+    mImArray = ImArray(m,:);
+end
+
 for k=2:nsteps+1
     curOp = SegT.Oper{k-1};
     curParams = SegT.Params{k-1};
     curType = opTbl.type(find(strcmp(opTbl.oper,curOp)));
     
 %     try
-    ims{k} = applyOperation(ims,curOp,curType,curParams,impath,ImArray);
+    ims{k} = applyOperation(ims,curOp,curType,curParams,impath,mImArray);
     % pass all images to apply Operation so that they can be used in
     % various operations.
 %     catch
@@ -293,11 +299,9 @@ switch type
         if strcmpi(params{1},'Raw')
             params{1} = 1;
         end
+        
         [filtim] = getPriorImage(ImArray,params{1},impath);
         
-        if iscell(filtim)
-            filtim = filtim{1};
-        end
         
         % process channel specification
         channel = params{2}; % valid channel types are R, G, B, or all
@@ -339,6 +343,10 @@ if isempty(ImArray)
     ImArray = imgs;
 end
 
+if strcmpi(params{1},'Raw')
+    params{1} = 1;
+end
+
 % Check image type
 if ~(isRGB(imgIn)||isGray(imgIn)||isBW(imgIn))
     imWarnMsg(oper,{'RGB','grayscale','BW'})
@@ -355,7 +363,10 @@ try
         [imx,imy,imz] = size(imgIn);
         mask = true(imx,imy);
     else
-        [~,imname,imext] = fileparts(params{1});
+        [temppath,imname,imext] = fileparts(params{1});
+        if ~isempty(temppath)
+            impath = temppath;
+        end
         mask = getPriorImage(ImArray,[imname imext],impath);
     end
 catch
@@ -540,6 +551,9 @@ function [filtim] = getPriorImage(imgs,imSpec,impath)
             imID = imSpec;
             if exist(fullfile(impath,imID),'file')==2
                 filtim = imread(fullfile(impath,imID));
+            else
+                msgbox('Mask not Found. Please select Mask');
+                filtim = uigetimage;
             end
         end
         

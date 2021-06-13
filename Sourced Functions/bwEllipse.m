@@ -5,6 +5,9 @@ zeroes = zeros(Resolution(1),Resolution(2),3);
 im = zeroes;
 nEllipses = length(MajorAxes);
 
+fW= waitbar(0,'Ellipsifying...');
+nr = length(Angles);
+
 for n=1:nEllipses
     xcoord = Centers(n,1);
     ycoord = Centers(n,2);
@@ -17,7 +20,11 @@ for n=1:nEllipses
     ellipses = draw_ellipse(ycoord,xcoord,MajorAxis/2,MinorAxis/2,-1*Angle,zeroes,[255 255 255]);
     sepmasks{n} = imbinarize(rgb2gray(ellipses));
     im = im+ellipses;
+    
+    waitbar(n/nr,fW,'Ellipsifying...')
 end
+close(fW)
+
 im(im>0)=1;
 im = imbinarize(rgb2gray(uint8(im)));
 

@@ -6,6 +6,7 @@ imRez = size(im);
 props = regionprops('table',im,{'Centroid','EquivDiameter'});
 props.Orientation = zeros(height(props),1);
 
-circleim = bwEllipse(imRez,props.Centroid,props.EquivDiameter,props.EquivDiameter,props.Orientation);
+% circleim = bwEllipse(imRez,props.Centroid,props.EquivDiameter,props.EquivDiameter,props.Orientation);
+circleim = drawBWcircs(imRez,props.Centroid,props.EquivDiameter/2);
 end
 

@@ -404,9 +404,10 @@ end
 
 % Confirm that mask and image have the same resolution
 if ~sameRez(imgIn,mask)
-    warning('Mask and image must have the same resolution. No changes made')
-    imgOut = imgIn;
-    return
+    msgbox('Mask and image must have the same resolution. Select new mask?')
+    newmasks = uigetimages;
+    mask = newmasks{1};
+%     return
 end
 
 switch oper

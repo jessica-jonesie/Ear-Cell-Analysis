@@ -12,20 +12,37 @@ function [imarr,masks] = ConvertToCompIms(varargin)
     
     mask = maskarray{1};
     
+    
+    
     labim = bwlabel(mask);
     imarr = labelSeparate(im,labim,'mask');
     imarr = imarr';
     
+
+    nims = length(imarr);
+
+
     imRez = size(im);
     
     trueIm = true(imRez(1),imRez(2));
+    idIm = reshape(1:(imRez(1).*imRez(2)),imRez(1:2));
     masks = labelSeparate(trueIm,labim,'mask');
-    
+    idIms = labelSeparate(idIm,labim,'crop');
     
     [~,root,~]=fileparts(imfiles{1});
     [~,mroot,~]=fileparts(maskfiles{1});
     
+    if nargin>0
+        nkeep = varargin{1};
+        rng(8)
+        randrem = randsample(1:nims,nims-nkeep,false);
+        imarr(randrem) = [];
+        masks(randrem) = [];
+        idims(randrem) = [];
+    end
     ims = imarr;
+  
+    
     defname = [root erase(mroot,root) '_SepIms.mat'];
     [file,path] = uiputfile('*.mat','Save image array',[impath defname]);
     save([path file],'ims');
@@ -33,5 +50,5 @@ function [imarr,masks] = ConvertToCompIms(varargin)
     ims = masks;
     defname = [root erase(mroot,root) '_SepImsMask.mat'];
     [file,path] = uiputfile('*.mat','Save mask array',[impath defname]);
-    save([path file],'ims');
+    save([path file],'ims','idIms','imRez');
 end

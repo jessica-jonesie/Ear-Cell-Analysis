@@ -155,7 +155,7 @@ for k=2:nsteps+1
     curType = opTbl.type(find(strcmp(opTbl.oper,curOp)));
     
 %     try
-    ims{k} = applyOperation(ims,curOp,curType,curParams,impath,mImArray);
+    ims{k} = applyOperation(ims,curOp,curType,curParams,impath,mImArray,m);
     % pass all images to apply Operation so that they can be used in
     % various operations.
 %     catch
@@ -189,15 +189,15 @@ if doSave
 end
 end
 
-function imgOut = applyOperation(imgs,oper,type,params,impath,ImArray)
+function imgOut = applyOperation(imgs,oper,type,params,impath,ImArray,m)
 switch type
     case {"bwmorph","othermorph"}
         imgOut = applyMorphOp(imgs{end},oper,type,params);
     case {"otherpropfilts","bwpropfilt","bwpropfiltI"}
-        imgOut = applyPropFilt(imgs,oper,type,params,impath,ImArray);
+        imgOut = applyPropFilt(imgs,oper,type,params,impath,ImArray,m);
     case "mask"
         % set mask 
-        imgOut = applyMaskOp(imgs,oper,params,impath,ImArray);
+        imgOut = applyMaskOp(imgs,oper,params,impath,ImArray,m);
     case "impro"
         imgOut = applyImProcess(imgs{end},oper,params);
     otherwise
@@ -271,7 +271,7 @@ end
 
 end
 
-function imgOut = applyPropFilt(imgs,oper,type,params,impath,ImArray)
+function imgOut = applyPropFilt(imgs,oper,type,params,impath,ImArray,m)
 
 imgIn = imgs{end}; % current image
 nIms = length(imgs); % no. of images;
@@ -304,7 +304,7 @@ switch type
             params{1} = 1;
         end
         
-        [filtim] = getPriorImage(ImArray,params{1},impath);
+        [filtim] = getPriorImage(ImArray,params{1},impath,m);
         
         
         % process channel specification
@@ -340,7 +340,7 @@ end
 
 end
 
-function imgOut = applyMaskOp(imgs,oper,params,impath,ImArray)
+function imgOut = applyMaskOp(imgs,oper,params,impath,ImArray,m)
 imgIn = imgs{end};
 
 if isempty(ImArray)
@@ -362,7 +362,7 @@ end
 
 try
     if isnumeric(params{1})&&params{1}>0
-        mask = getPriorImage(ImArray,params{1},impath);
+        mask = getPriorImage(ImArray,params{1},impath,m);
     elseif isnumeric(params{1})&&params{1}==0
         [imx,imy,imz] = size(imgIn);
         mask = true(imx,imy);
@@ -371,7 +371,9 @@ try
         if ~isempty(temppath)
             impath = temppath;
         end
-        mask = getPriorImage(ImArray,[imname imext],impath);
+        mask = getPriorImage(ImArray,[imname imext],impath,m);
+        
+        
     end
 catch
     warning('Improper mask specifier. Must be an ID or file name. Mask not applied')
@@ -395,7 +397,7 @@ end
 
 % Check mask type
 if ~isBW(mask)
-    warning('Masks must be binary (BW) images. No changes made')
+%     warning('Masks must be binary (BW) images. No changes made')
     imgOut = imgIn;
     return
 end
@@ -528,7 +530,7 @@ function newparms = getFiltParms(params) % convert filter parameter inputs to in
         end
 end
 
-function [filtim] = getPriorImage(imgs,imSpec,impath)
+function [filtim] = getPriorImage(imgs,imSpec,impath,m)
     % access a previous image in the segmentation scheme or another image in the raw images directory. 
          nIms = length(imgs); % no. of images;
          imgIn = imgs{end};
@@ -553,12 +555,18 @@ function [filtim] = getPriorImage(imgs,imSpec,impath)
             end
         elseif ischar(imSpec) % handle image file instance.
             imID = imSpec;
-            if exist(fullfile(impath,imID),'file')==2
-                filtim = imread(fullfile(impath,imID));
+            
+            if contains(imID,'.mat') % likely an image array.
+                arr = load(fullfile(impath,imID)); % load in images.
+                filtim = arr.ims{m};
             else
-                msgbox('Mask not Found. Please select Mask');
-                filtim = uigetimage;
-            end
+                if exist(fullfile(impath,imID),'file')==2
+                    filtim = imread(fullfile(impath,imID));
+                else
+                    msgbox('Mask not Found. Please select Mask');
+                    filtim = uigetimage;
+                end
+            end 
         end
         
 end

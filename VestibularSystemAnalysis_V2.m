@@ -6,7 +6,7 @@ addpath('Data')
 addpath('Results')
 
 %% Analysis parameters
-Approach = 'Manual';
+Approach = 'Auto';
 
 %% Select Image
 % Select RAW Image
@@ -40,7 +40,10 @@ switch Approach
     case 'Auto'
         % For automatic segmentation, provide the segmentation parameters
         % for the Hair Cells, Support Cells, Cell Boundaries, and Polar
-        % bodies and the code will automatically generate masks. 
+        % bodies and the code will automatically generate masks.
+        
+        
+        
 end
 
 %% Refine Cell masks

@@ -33,6 +33,7 @@ addParameter(p,'ndiv',0.05,@isnumeric);
 addParameter(p,'pad',true,@islogical);
 addParameter(p,'closeselection',false,@islogical);
 addParameter(p,'preview',false,@islogical);
+addParameter(p,'dispcenters',[],@isnumeric); % display vector map given starting points of vectors
 
 parse(p,im,varargin{:});
 
@@ -41,6 +42,9 @@ ndiv = p.Results.ndiv;
 pad = p.Results.pad;
 closeselection=p.Results.closeselection;
 preview = p.Results.preview;
+
+dispcenters = p.Results.dispcenters;
+
 [imx,imy,imz]=size(im);
 
 %% pad if requested
@@ -96,12 +100,21 @@ switch Interp
 
 end
 
+if ~isempty(dispcenters)
+    [~,RefAngle,~,~] = pt2ptInfluence(dispcenters+padsize(2:-1:1),BoundPts,'inverse',2);
+end
+
 %% Preview results
 fH2 = figure;
 imshow(im)
 hold on
 plot(BoundPts(:,1),BoundPts(:,2),'.-r')
 plot(UserPts(:,1),UserPts(:,2),'.b','MarkerSize',15)
+
+if ~isempty(dispcenters)
+    quiver(dispcenters(:,1)+padsize(2),dispcenters(:,2)+padsize(1),cosd(RefAngle),-sind(RefAngle),'Color','w','Linewidth',1.5)
+end
+hold off
 
 answer = questdlg('Accept?', ...
     'Boundary Line Interpolation', ...
@@ -111,6 +124,8 @@ end
 
 %% correct padding
 BoundPts = BoundPts-padsize(1:2);
+
+
 end
 
 function [out] = difflinspace(v,n)

@@ -16,10 +16,16 @@ doAnnot = false;
 % type = cell2mat(inputdlg(prompt,dlgtitle,dims,definput));
 
 %% Read in cell masks (segment or read)
-[Rawcell,imfile,impath] = uigetimages('*.png','Select Raw File');
-ImDat.RAW = Rawcell{1}; % Raw image
-ImDat.CellMask = cell2mat(uigetimages('*.bmp','Select Cell Mask',impath)); % Binary mask marking Cells
-ImDat.PolarBodyMask = cell2mat(uigetimages('*.bmp','Select Polar Body Mask',impath)); % Binary mask marking polar bodies
+% Read in Raw Image
+[RawCell,RawFile,RawPath] = uigetimages('*.png','Select Raw File');
+ImDat.RAW = RawCell{1}; 
+
+% Read in Binary mask marking Cells
+[CellMaskCell,CellMaskFile,CellMaskPath] = uigetimages('*.bmp','Select Cell Mask',RawPath); 
+ImDat.CellMask = CellMaskCell{1}; 
+
+[PolarBodyMaskCell,PolarBodyMaskFile,PolarBodyMaskPath] = uigetimages('*.bmp','Select Polar Body Mask',RawPath); % Binary mask marking polar bodies
+ImDat.PolarBodyMask = PolarBodyMaskCell{1};
 
 [imx,imy,imz] = size(ImDat.RAW);
 
@@ -44,7 +50,7 @@ ImDat.ImB = ImDat.RAW(:,:,3);
 [CellProps] = Masks2CtrPolOri(CellProps);
 
 %% Get Reference Line and compute normalized orientation
-[BoundPts,UserPts] = GetBoundaryLine(ImDat.RAW,'preview',true);
+[BoundPts,UserPts] = GetBoundaryLine(ImDat.RAW,'preview',true,'dispcenters',CellProps.Center);
 
 % Generate reference angles according to an inverse square rule.
 [~,CellProps.RefAngle,CellProps.RefX,CellProps.RefY] = pt2ptInfluence(CellProps.Center,BoundPts,'inverse',2);
@@ -90,6 +96,16 @@ ImDat.CellMaskR(cell2mat(CellProps.PixIDs))=true;
 
 %% Save Results
 curtime = qdt('Full');
+root = erase(RawFile{1},'.png');
+cellID =  erase(CellMaskFile{1},{root '.bmp' '_'});
+defsavename = strcat(root,'_',cellID,'_analysis','_',curtime,'.mat');
 
-% savename = strcat(root,Approach,'_','data','_',curtime,'.mat');
+[savefile,savepath] = uiputfile('*.mat','Save Analysis File',RawPath);
+
+if ischar(savefile)
+    save([savepath savefile],'CellProps','ImDat','BoundPts','RawFile',...
+        'CellMaskFile','PolarBodyMaskFile')
+end
+
+
 % save(fullfile(impath,savename),'CellProps','ImDat','BoundPts');

@@ -34,6 +34,11 @@ function [imarr,masks] = ConvertToCompIms(varargin)
     
     if nargin>0
         nkeep = varargin{1};
+        if nkeep>nims
+            nkeep = nims;
+            
+        end
+        
         rng(8)
         randrem = randsample(1:nims,nims-nkeep,false);
         imarr(randrem) = [];

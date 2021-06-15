@@ -55,9 +55,13 @@ end
 
 %%
 answer = 'No';
+
+
+questdlg('Click to select boundary points. Backspace to remove. Enter to finish','','OK','OK')
 while strcmp(answer,'No')
 fH=figure;
 ax=imshow(im);
+
 roi=drawpolyline;
 UserPts = roi.Position;
 % xq = linspace(UserPts(1,1),UserPts(end,1),npts);

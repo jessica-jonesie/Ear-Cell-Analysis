@@ -100,7 +100,7 @@ root = erase(RawFile{1},'.png');
 cellID =  erase(CellMaskFile{1},{root '.bmp' '_'});
 defsavename = strcat(root,'_',cellID,'_analysis','_',curtime,'.mat');
 
-[savefile,savepath] = uiputfile('*.mat','Save Analysis File',RawPath);
+[savefile,savepath] = uiputfile('*.mat','Save Analysis File',[RawPath defsavename]);
 
 if ischar(savefile)
     save([savepath savefile],'CellProps','ImDat','BoundPts','RawFile',...

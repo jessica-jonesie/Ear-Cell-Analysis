@@ -54,7 +54,7 @@ switch TransformType
         aveX = mean(xcomps,2,'omitnan');
         aveY = mean(ycomps,2,'omitnan');
         
-        refAngle = atan2d(aveY,aveX);
+        refAngle = atan2d(-aveY,aveX);
         refMagnitude = sqrt(aveX.^2+aveY.^2);
     case 'decay'
         distSquare = exp(-(1/transformStrength).*pt2ptDist);
@@ -67,7 +67,7 @@ switch TransformType
         aveX = mean(xcomps,2,'omitnan');
         aveY = mean(ycomps,2,'omitnan');
         
-        refAngle = atan2d(aveY,aveX);
+        refAngle = atan2d(-aveY,aveX);
         refMagnitude = sqrt(aveX.^2+aveY.^2);
     case 'none'
         [mindists,minI] = min(pt2ptDist');

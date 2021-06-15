@@ -35,7 +35,7 @@ CellProps.PBY = CellProps.PBLocalCentroid(:,2)-CellProps.LocalCenter(:,2);
 
 % Distance between polar body and cell center
 CellProps.CTRPBDist = sqrt((CellProps.PBX).^2+(CellProps.PBY).^2);
-CellProps.Orientation = atan2d(CellProps.PBY,CellProps.PBX);
+CellProps.Orientation = atan2d(-CellProps.PBY,CellProps.PBX);
 
 %% Compute Polarity from Polarity Map
 CellProps.Polarity = cell2mat(cellfun(getPol,CellProps.PBMask,CellProps.PolMap,'UniformOutput',false));

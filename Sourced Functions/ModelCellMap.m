@@ -23,7 +23,14 @@ pbradius = p.Results.pbradius;
 crop = p.Results.crop;
 doplot = p.Results.doplot;
 kernType = p.Results.kernType;
+%% Fix orientations so they match the histograms
+xcomp = cosd(Orientations);
+ycomp = sind(Orientations);
+
+Orientations = atan2d(-ycomp,xcomp);
+
 %%
+
 for k=1:nmaps
     if pbradius>0.5
         maps(:,:,k) = PolOriPixPt(Polarities(k),Orientations(k),rez,'pxradius',pbradius,'kernType',kernType);

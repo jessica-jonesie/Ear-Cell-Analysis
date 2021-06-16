@@ -43,7 +43,7 @@ function [imarr,masks] = ConvertToCompIms(varargin)
         randrem = randsample(1:nims,nims-nkeep,false);
         imarr(randrem) = [];
         masks(randrem) = [];
-        idims(randrem) = [];
+        idIms(randrem) = [];
     end
     ims = imarr;
   

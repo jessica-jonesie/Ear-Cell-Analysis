@@ -11,7 +11,7 @@ end
 filedir = fullfile(impath,imfile);
 
 [~,~,ext] = fileparts(filedir);
-
+try
 switch ext
     case '.mat'
         load(filedir);
@@ -39,5 +39,10 @@ switch ext
                 ImArray{k} = imread(fullfile(impath,imfile{k}));
             end
         end
+end
+catch
+    ImArray = {0};
+    imfiles = {0};
+    impath = {0};
 end
 end

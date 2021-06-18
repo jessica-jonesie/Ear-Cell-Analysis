@@ -1,5 +1,6 @@
 function [AngleK,alignment] = AngleK(scales,vecA,varargin)
-%UNTITLED5 Summary of this function goes here
+%ANGLEK Compute the angleK statistic given a vector field and set of
+%angles. 
 %   Detailed explanation goes here.
 
 if max(vecA.angle)>2*pi

@@ -6,7 +6,7 @@ addpath('Data')
 addpath('Results')
 
 %% Analysis parameters
-Approach = 'Auto';
+Approach = 'Manual';
 doAnnot = false;
 
 
@@ -59,7 +59,7 @@ end
 % Remove all cells touching the image boundary.
 % Remove Support cells that are not within 'NeighborThresh' pixels of a
 % hair cell. 
-% ImDat = RefineCellMasks(ImDat,'ClearBoundary',true,'NeighborThresh',7);
+ImDat = RefineCellMasks(ImDat,'ClearBoundary',true,'NeighborThresh',7);
 
 %% Isolate Cells, Compute Polarity Map, Assign IDs, and cell type. 
 %  And Get some morphological properties of cells

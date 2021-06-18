@@ -1,7 +1,7 @@
 function [pvalue,RayleighsR,z] = RayleighTest(angs)
 %RAYLEIGHTEST Test null hypothesis that circular distribution is uniform.
 %   [pvalue,Ray,z] = RAYLEIGHTEST(AngleVector) tests whether the
-%   distribution of angles in the input AngleVector is significantly
+%   distribution of angles (IN DEGREES) in the input AngleVector is significantly
 %   different from a uniform distribution. Outputs Rayleighs R,
 %   Rayleigh's z (z) which is the test statistic for the Rayleighs Test,
 %   and the approximate p-value for the Rayleigh Test Statistic. This

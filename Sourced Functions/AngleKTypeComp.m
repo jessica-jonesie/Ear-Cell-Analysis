@@ -6,7 +6,7 @@ function [K,Ori,KsimMax,KsimMin,name] = AngleKTypeComp(scales,props,splitvar)
 
 for k =1:ntypes
     hvec{k}.origin = props.Center(TypeID{k},:);
-    hvec{k}.angle = props.NormOrientationR(TypeID{k});
+    hvec{k}.angle = props.OrientationR(TypeID{k});
     hvec{k}.magnitude = ones(sum(TypeID{k}),1);
 end
 

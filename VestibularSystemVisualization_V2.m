@@ -14,7 +14,6 @@ SID = CellProps.Type=='Support';
 [TypeID,ntypes,types] = GetTypeIDs(CellProps,'Type');
 
 
-
 % Add Orientations in Radians
 CellProps.OrientationR = wrapTo360(CellProps.Orientation)*pi/180;
 CellProps.NormOrientationR = wrapTo360(CellProps.NormOrientation)*pi/180;
@@ -80,7 +79,7 @@ figure
 
 %% Orientation Map and Polarity Map
 % Raw Orientation Map
-DataMapArray(ImDat,CellProps,'Orientation','Type','cmap',OrientColMap,'varlims',[-180 180]);
+% DataMapArray(ImDat,CellProps,'Orientation','Type','cmap',OrientColMap,'varlims',[-180 180]);
 % Orientation Map
 CellProps.NormOrientation180 = flipTo180(CellProps.NormOrientation);
 DataMapArray(ImDat,CellProps,'NormOrientation180','Type','cmap',OrientColMap,'varlims',[0 180])
@@ -89,10 +88,13 @@ DataMapArray(ImDat,CellProps,'NormOrientation180','Type','cmap',OrientColMap,'va
 DataMapArray(ImDat,CellProps,'Polarity','Type','cmap',PolarMap,'varlims',[0 1])
 
 %% Angle K
-if false
+if true
     mindim = min(size(ImDat.HairCellMask));
-    scales = linspace(0,mindim/2,21)';
-    scales(1) = [];
+%     scales = linspace(0,mindim/2,21)';
+%     scales(1) = [];
+    
+    scales = (50:50:500)';
+    
     if ~exist('AngK','var')
         [AngK.Obs,AngK.Ori,AngK.simMax,AngK.simMin,AngK.name] = AngleKTypeComp(scales,CellProps,'Type');
         AngK.scales = scales;
@@ -112,6 +114,21 @@ if false
         ylabel('Population Alignment')
         title(AngK.name{k})
         ylim([-1 1])
+        xlim([scales(1) scales(end)])
     end
 end
 
+%% Alignment maps
+scaleid = 2;
+HairCellAlignment = AngK.Ori{1}(:,scaleid);
+SupportCellAlignment = AngK.Ori{4}(:,scaleid);
+CellProps.Alignment = [HairCellAlignment; SupportCellAlignment];
+DataMapArray(ImDat,CellProps,'Alignment','Type','cmap',OrientColMap,'varlims',[-1 1])
+xlabel(sprintf('Alignment at r=%d',scales(scaleid)));
+
+scaleid = length(scales);
+HairCellAlignment = AngK.Ori{1}(:,scaleid);
+SupportCellAlignment = AngK.Ori{4}(:,scaleid);
+CellProps.Alignment = [HairCellAlignment; SupportCellAlignment];
+DataMapArray(ImDat,CellProps,'Alignment','Type','cmap',OrientColMap,'varlims',[-1 1])
+xlabel(sprintf('Alignment at r=%d',scales(scaleid)));

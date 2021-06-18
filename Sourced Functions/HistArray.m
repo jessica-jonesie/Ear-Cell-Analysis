@@ -15,6 +15,7 @@ addParameter(p,'histtype','default',checkTypes);
 addParameter(p,'fixmax',false,@islogical);
 addParameter(p,'xlabel','',checkvar);
 addParameter(p,'ylabel','Frequency',checkvar);
+addParameter(p,'nullpolarity',false,@islogical);
 
 parse(p,props,var,splitvar,varargin{:})
 splitcolors = p.Results.splitcolors;
@@ -22,6 +23,7 @@ histtype = p.Results.histtype;
 fixmax = p.Results.fixmax;
 xlab = p.Results.xlabel;
 ylab = p.Results.ylabel;
+nullpolarity = p.Results.nullpolarity;
 
 %% Get number of types and split data
 [TypeID,ntypes,types] = GetTypeIDs(props,splitvar);
@@ -70,6 +72,13 @@ switch histtype
             hh.FaceAlpha = 0.8;
             title(types(k));
             axis square
+            
+            if nullpolarity
+                [NullP,~,NullX]=NullPolarity(props.(var),length(binEdges)-1,200);
+            end
+            hold on
+            plot(NullX,NullP,'-k');
+            hold off
             
             xlabel(xlab)
             ylabel(ylab)

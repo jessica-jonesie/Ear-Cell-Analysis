@@ -11,7 +11,13 @@ clrMap = 'RdYlBu';
 load(fullfile(path,file));
 
 nanOri = isnan(CellProps.NormOrientation);
-nanPol = isnan(CellProps.CombinedPolarity);
+try
+    nanPol = isnan(CellProps.CombinedPolarity);
+catch
+    CellProps.CombinedPolarity = CellProps.Polarity;
+    nanPol = isnan(CellProps.CombinedPolarity);
+end
+
 CellProps(nanOri|nanPol,:)=[];
 
 % Fix orientation thing

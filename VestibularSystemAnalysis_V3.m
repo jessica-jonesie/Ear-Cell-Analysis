@@ -8,13 +8,6 @@ addpath('Results')
 %% Analysis parameters
 doAnnot = false;
 
-%% name the group
-% prompt = {'Enter Group Name'};
-% dlgtitle = 'Input';
-% dims = [1 35];
-% definput = {'group'};
-% type = cell2mat(inputdlg(prompt,dlgtitle,dims,definput));
-
 %% Read in cell masks (segment or read)
 % Read in Raw Image
 [RawCell,RawFile,RawPath] = uigetimages('*.png','Select Raw File');

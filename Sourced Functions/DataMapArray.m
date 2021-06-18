@@ -23,6 +23,7 @@ for k = 1:ntypes
     maskname = strcat('R',types{k},'CellMask');
     [datmap,fH,axH] = DataMap(ImDat.(maskname),...
                       props.(var)(TypeID{k}));
+    daspect([1 1 1])
     cax=colorbar;
     colormap(cmap)
     ylabel(cax,var)

@@ -21,7 +21,7 @@ addParameter(p,'ImArray',{},@iscell);
 parse(p,varargin{:});
 
 RawImage = p.Results.RawImage;
-Schedule = p.Results.Schedule;
+Schedule = p.Results.Schedule; 
 doSave = p.Results.save;
 ImArray = p.Results.ImArray;
 

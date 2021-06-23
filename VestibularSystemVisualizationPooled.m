@@ -9,10 +9,17 @@ addpath('Results')
 load(fullfile(path,file));
 
 roots = inputdlg('Set Root Name:','Input',4,{erase(file,'.mat')});
-rootfile = [roots{1} '_Results'];
-mkdir(rootfile);
+if isempty(roots)
+    dosave = false;
+else
+    dosave = true;
+end
 
-root = fullfile(rootfile,roots{1});
+if dosave
+    rootfile = [roots{1} '_Results'];
+    mkdir(rootfile);
+    root = fullfile(rootfile,roots{1});
+end
 
 
 [TypeID,ntypes,types] = GetTypeIDs(CellProps,'Type');
@@ -30,23 +37,61 @@ figure
 [ha] = HistArray(CellProps,'NormOrientationR','Type',...
     'histtype','polar','splitcolors',TypeMap);
 sgtitle('Normalized Orientation')
+if dosave
 print(gcf,'-dpdf',[root '_OrientationHistogram.pdf'])
+end
+
+figure
+[hc] = HistArray(CellProps,'NormOrientationR','Type',...
+    'histtype','polar','fixmax',true,'splitcolors',TypeMap);
+sgtitle('Normalized Orientation')
+if dosave
+print(gcf,'-dpdf',[root '_OrientationHistogram_FixMax.pdf'])
+end
 
 % Polarity Histograms
 figure
 [hb] = HistArray(CellProps,'Polarity','Type','splitcolors',TypeMap,...
     'fixmax',true,'xlabel','Polarity','nullpolarity',true);
 sgtitle('Polarity')
+if dosave
 print(gcf,'-dpdf',[root '_PolarityHistogram.pdf'])
+end
+
+% Polarity Box and Whisker
+figure
+[hbox] = boxplot(CellProps.Polarity,CellProps.Type);
+title('Subcellular Polarity')
+if dosave
+print(gcf,'-dpdf',[root '_PolarityBoxPlot.pdf'])
+end
+
+% Violin plot
+for k = 1:ntypes
+    polCell{k} = CellProps.Polarity(TypeID{k});
+    polname{k} = types(k);
+end
+figure
+violin(polCell,'xlabel',polname,'facecolor',TypeMap,'facealpha',1,'medc','w');
+ylabel('Probability')
+xlabel('Polarity')
+if dosave
+    print(gcf,'-dpdf',[root '_PolarityViolin.pdf'])
+end
+
 close all
 %% Model Cell Array
 figure
 [hc] = ModelCellArray(CellProps,'Type','fixmax',true);
+if dosave
 export_fig(gcf,[root '_ModelCell_FixedMax'],'-pdf')
+end
 
 figure
 [hc] = ModelCellArray(CellProps,'Type');
+if dosave
 export_fig(gcf,[root '_ModelCell'],'-pdf')
+end
 
 close all
 %% Individual Files
@@ -62,24 +107,41 @@ for k = 1:length(poolIms)
     hold on
     visboundaries(bwboundaries(ImDat.CellMaskR),'Color','w','Linewidth',0.5);
     title(curType)
+    daspect([1 1 1])
+    if dosave
     export_fig(gcf,[root '_' curType '_' curRep '_CellOverlay'],'-pdf')
+    end
     
     figure
     VectorOverlayMap(ImDat,TempProps,'Type','splitcolors',[1 1 1]);
     title(curType)
+    daspect([1 1 1])
+    if dosave
     export_fig(gcf,[root '_' curType '_' curRep '_VectorOverlay'],'-pdf')
+    end
     
-    %% Orientation Map
+    %% Orientation Maps
+    ImDat.(['R' curType 'CellMask']) = ImDat.CellMaskR;
+    DataMapArray(ImDat,TempProps,'NormOrientation','Type','cmap',OrientColMap,'varlims',[0 360])
+    title(curType)
+    if dosave
+    export_fig(gcf,[root '_' curType '_' curRep '_OrientationMap'],'-pdf')
+    end
+    
     ImDat.(['R' curType 'CellMask']) = ImDat.CellMaskR;
     DataMapArray(ImDat,TempProps,'NormOrientation180','Type','cmap',OrientColMap,'varlims',[0 180])
     title(curType)
-    export_fig(gcf,[root '_' curType '_' curRep '_OrientationMap'],'-pdf')
+    if dosave
+    export_fig(gcf,[root '_' curType '_' curRep '_OrientationMap180'],'-pdf')
+    end
     
     %% Polarity Map
     ImDat.(['R' curType 'CellMask']) = ImDat.CellMaskR;
     DataMapArray(ImDat,TempProps,'Polarity','Type','cmap',PolarMap,'varlims',[0 1])
     title(curType)
+    if dosave
     export_fig(gcf,[root '_' curType '_' curRep '_PolarityMap'],'-pdf')
+    end
     
     close all
 end
@@ -151,11 +213,14 @@ for n=1:length(AngK.types)
     xlim(AngK.scales([1 end])');
 end
 
+if dosave
 export_fig(gcf,[root '_AngleK'],'-pdf')
+end
+
 close all
 %% Orientation Maps
 
-scaleID = [2 10];
+scaleID = [2];
 
 for m = 1:length(scaleID)
     cnt = 0;
@@ -181,8 +246,9 @@ for m = 1:length(scaleID)
                 ax.YTick = [];
                 
                 savename = strjoin({root,char(curType),num2str(n),'Alignment',num2str(AngK.scales(scaleID(m)))},'_');
+                if dosave
                 export_fig(gcf,savename,'-pdf')
-
+                end
             end
     end
 end

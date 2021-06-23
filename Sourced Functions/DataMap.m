@@ -43,6 +43,7 @@ end
 if DoDisplay
     axHandle = pcolor(flipud(datmap));
     set(axHandle, 'EdgeColor', 'none')
+    daspect([1 1 1])
 else
     axHandle = [];
 end

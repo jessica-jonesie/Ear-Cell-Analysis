@@ -16,7 +16,12 @@ function [pvalue,RayleighsR,z] = RayleighTest(angs)
 %
 %   SEE ALSO KSSTRUCT.
 
+
 angs(isnan(angs))= [];
+
+if range(angs)<=2*pi
+    warning('Angle appears to be in radians. MWWUniformScores only accepts inputs in degrees')
+end
 
 ResultantLength = ResLength(angs,1);
 nSamps = length(angs);

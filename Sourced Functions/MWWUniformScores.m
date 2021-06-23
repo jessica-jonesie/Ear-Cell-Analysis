@@ -7,7 +7,9 @@ function [W,SigLvl,stat] = MWWUniformScores(varargin)
 %   or *** accept the alternative hypothesis, that the samples are from
 %   different distributions at the indicated significance level. *=0.05,
 %   **=0.01, ***=0.001; Stat stores the additional values that are used in
-%   the calculation including the rank of each score. 
+%   the calculation including the rank of each score.
+%
+%   MUST BE IN DEGREES
 %
 %   Author: Connor P. Healy, University of Utah, Dept. of Biomedical
 %   Engineering.
@@ -24,6 +26,9 @@ catch
 end
 stat.Angles = vec(:);
 
+if range(varargin{1})<=2*pi
+    warning('Angle appears to be in radians. MWWUniformScores only accepts inputs in degrees')
+end
 
 N = length(stat.Angles);
 group = [];

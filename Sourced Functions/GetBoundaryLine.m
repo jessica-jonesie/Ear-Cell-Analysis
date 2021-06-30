@@ -53,6 +53,7 @@ if pad
     im = padarray(im,padsize,0);
 end
 
+[pimx,pimy,pimz]=size(im);
 %%
 answer = 'No';
 
@@ -61,6 +62,10 @@ questdlg('Click to select boundary points. Backspace to remove. Enter to finish'
 while strcmp(answer,'No')
 fH=figure;
 ax=imshow(im);
+hold on
+xline(pimy/2,'-w')
+yline(pimx/2,'-w');
+hold off
 
 roi=drawpolyline;
 UserPts = roi.Position;
@@ -114,6 +119,8 @@ imshow(im)
 hold on
 plot(BoundPts(:,1),BoundPts(:,2),'.-r')
 plot(UserPts(:,1),UserPts(:,2),'.b','MarkerSize',15)
+xline(pimy/2,'-w')
+yline(pimx/2,'-w');
 
 if ~isempty(dispcenters)
     quiver(dispcenters(:,1)+padsize(2),dispcenters(:,2)+padsize(1),cosd(RefAngle),-sind(RefAngle),'Color','w','Linewidth',1.5)

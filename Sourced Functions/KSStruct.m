@@ -7,7 +7,6 @@ function [StatTab] = KSStruct(x,CDF,CDFType)
 CDFs = struct2cell(intCDFs);
 fields = fieldnames(intCDFs);
 
-
 nDists = length(CDFs);
 DistIDMat = nchoosek(1:nDists,2);
 IDA = DistIDMat(:,1);

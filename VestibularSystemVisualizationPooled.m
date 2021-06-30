@@ -58,25 +58,54 @@ if dosave
 print(gcf,'-dpdf',[root '_PolarityHistogram.pdf'])
 end
 
+% Violin plot and CDF Plot
+for k = 1:ntypes
+    polCell{k} = CellProps.Polarity(TypeID{k});
+    polname{k} = types(k);
+    
+    [SigLvl(k),D(k)] = NullPolKSTest(CellProps.Polarity(TypeID{k}));
+end
+
+figure
+violin(polCell,'xlabel',polname,'facecolor',[TypeMap],'facealpha',1,'medc','w');
+ylabel('Probability')
+xlabel('Polarity');
+if dosave
+    print(gcf,'-dpdf',[root '_PolarityViolin.pdf'])
+end
+
 % Polarity Box and Whisker
+% nsims = 2000;
+% nullPol = sqrt(rand(1,nsims))';
 figure
 [hbox] = boxplot(CellProps.Polarity,CellProps.Type);
 title('Subcellular Polarity')
+% add significance labels
+for k=1:ntypes
+    text(k,0,SigLvl(k));
+end
+ylabel('Polarity');
+
 if dosave
 print(gcf,'-dpdf',[root '_PolarityBoxPlot.pdf'])
 end
 
-% Violin plot
-for k = 1:ntypes
-    polCell{k} = CellProps.Polarity(TypeID{k});
-    polname{k} = types(k);
-end
+
+
+% ECDF Plot
 figure
-violin(polCell,'xlabel',polname,'facecolor',TypeMap,'facealpha',1,'medc','w');
-ylabel('Probability')
-xlabel('Polarity')
+p=linspace(0,1,100);
+lwd = 2;
+plot(p,p.^2,':k','LineWidth',lwd);
+hold on
+for k = 1:ntypes
+    [polECDF,polECDFx] = ecdf(CellProps.Polarity(TypeID{k}));
+    plot(polECDFx,polECDF,'Color',TypeMap(k,:),'LineWidth',2);
+end
+legend(['Null';types],'Location','NorthWest');
+
 if dosave
-    print(gcf,'-dpdf',[root '_PolarityViolin.pdf'])
+    print(gcf,'-dpdf',[root '_PolarityCDF.pdf'])
 end
 
 close all
@@ -218,6 +247,45 @@ export_fig(gcf,[root '_AngleK'],'-pdf')
 end
 
 close all
+
+%% AngleK conf int plot.
+
+for k=1:length(types)
+cOri = cell2mat(AngK.Ori(:,k));
+obsK = mean(cOri,'omitnan');
+lincolor = TypeMap(k,:);
+nObs = length(cOri)-sum(isnan(cOri)); % n observations
+
+% Conf Ints
+alpha2 = 0.01/2;
+SEM = std(cOri,'omitnan')./sqrt(nObs); % standard Error
+tmin = tinv(alpha2,nObs-1); % t-score
+tmax = tinv(1-alpha2,nObs-1); % t-score
+CMin = obsK+tmin.*SEM;
+CMax = obsK+tmax.*SEM;
+
+hold on
+patch([scales' fliplr(scales')],[CMin fliplr(CMax)],lincolor,'EdgeColor','none','FaceAlpha',0.7)
+end
+legend(types)
+for k=1:length(types)
+    cOri = cell2mat(AngK.Ori(:,k));
+    obsK = mean(cOri,'omitnan');
+    plot(scales,obsK,'-k','LineWidth',1);
+end
+hold off
+xlim([scales(1) scales(end)])
+xlabel('Scale, r (pixels)')
+ylabel('Population Alignment')
+
+axis square
+if dosave
+% export_fig(gcf,[root '_AngleK_Overlay'],'-pdf')
+print(gcf,'-dpdf',[root '_AngleK_Overlay.pdf'])
+end
+
+close all
+
 %% Orientation Maps
 
 scaleID = [2];

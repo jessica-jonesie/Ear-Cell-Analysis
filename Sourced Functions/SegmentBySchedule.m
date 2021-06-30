@@ -25,7 +25,7 @@ Schedule = p.Results.Schedule;
 doSave = p.Results.save;
 ImArray = p.Results.ImArray;
 
-% UI read images if not provided as inputs to SEGMENTBYSCHEDULE.
+%% UI read images if not provided as inputs to SEGMENTBYSCHEDULE.
 if isempty(RawImage)
 %     [imfile,impath] = uigetfile({'*.png;*.jpg;*.bmp'},'Multiselect','on');
 %     RawImage = {imread(fullfile(impath,imfile))};

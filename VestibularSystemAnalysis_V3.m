@@ -87,6 +87,8 @@ CellProps.NormOrientation180 = flipTo180(CellProps.NormOrientation); % Normalize
 ImDat.CellMaskR = false(imx,imy);
 ImDat.CellMaskR(cell2mat(CellProps.PixIDs))=true;
 
+%% preview histograms
+polarhistogram(CellProps.NormOrientationR,40);
 %% Save Results
 curtime = qdt('Full');
 root = erase(RawFile{1},'.png');

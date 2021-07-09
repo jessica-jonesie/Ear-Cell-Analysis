@@ -109,7 +109,7 @@ bwmorphops = {'outline','skel','bothat','bridge','clean','thicken',...
 othermorphops = {'dilate','erode','close','open','clearborder',...
             'watershed','ellipsify','circularize'}';
 
-% proper filters that use the bwpropfilt function.
+% property filters that use the bwpropfilt function.
 bwpropfilts = {'area','convexarea','eccentricity','equivdiameter',...
                'eulernumber','extent','filledarea','majoraxislength',...
                'minoraxislength','orientation','perimeter','solidity'}';
@@ -119,7 +119,7 @@ bwpropfilts = {'area','convexarea','eccentricity','equivdiameter',...
 bwpropfiltsI = {'maxintensity','minintensity','meanintensity'}';
 
 % all property filters
-otherpropfilts = {'circularity'}';
+otherpropfilts = {'circularity','numbwfilt'}';
 
 % mask operations
 maskops = {'mask','asmask','cropbymask','neighborthresh'}';
@@ -142,7 +142,7 @@ opTbl.Properties.VariableNames = {'oper','type'};
 
 %% Run through image operations
 for m=1:length(RawImage) % place in loop in order to process sets of images later using identical settings. 
-ims{1}=RawImage{m}; % Initialize image
+    ims{1}=RawImage{m}; % Initialize image
 if isempty(ImArray)
     mImArray = [];
 else
@@ -332,7 +332,9 @@ switch type
             case 'circularity'
                 filtparms = getFiltParms(params);
                 imgOut = bwcircfilt(imgIn,filtparms{:});
-
+            case 'numbwfilt'
+                filtparms = getFiltParms(params);
+                imgOut = numBWFilt(imgIn,filtparms{:});
         end
         
 end

@@ -288,7 +288,7 @@ close all
 
 %% Orientation Maps
 
-scaleID = [2];
+scaleID = [1];
 
 for m = 1:length(scaleID)
     cnt = 0;

@@ -20,7 +20,7 @@ labels = imread([labeldir labelfile]);
 %%
 tilewidth = 224;
 imageDir = [rootdir 'imsResNetBB'];
-labelDir = [rootdir 'labelsResNetBB'];
+labelDir = [labeldir 'labelsResNetBB'];
 [tiledims,tx,ty] = Split2Tile(im,tilewidth,'SaveDir',imageDir);
 tiledlabs = Split2Tile(labels,tilewidth,'SaveDir',labelDir);
 

@@ -1,12 +1,12 @@
 clc; clear; close all;
 
 %% Split the image and labels into tiles
-[imfile,rootdir] = uigetfile({'*.png;*.jpg;*.bmp*;*.mat'},'Select Image');
+[imfile,rootdir] = uigetfile({'*.png;*.jpg;*.bmp*;*.mat'},'Select Training Image');
 imraw = imread([rootdir imfile]);
 [~,imname,imtype]=fileparts(imfile);
 
 
-[labelfile,labeldir] = uigetfile({'*.png;*.jpg;*.bmp*;*.mat'},'Select Label File',rootdir);
+[labelfile,labeldir] = uigetfile({'*.png;*.jpg;*.bmp*;*.mat'},'Select Training Labels File',rootdir);
 labels = imread([labeldir labelfile]);
 % [~,imname,imtype]=fileparts(imfile);
 % labels = imread([rootdir 'V1V2CKO_BasalBodies.bmp']);

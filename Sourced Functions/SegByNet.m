@@ -1,5 +1,5 @@
 %% Split the image and labels into tiles
-[imfile,rootdir] = uigetfile({'*.png;*.jpg;*.bmp*;*.mat'},'Select Image');
+[imfile,rootdir] = uigetfile({'*.png;*.jpg;*.bmp*;*.mat'},'Select Image to Segment');
 imraw = imread([rootdir imfile]);
 [~,imname,imtype]=fileparts(imfile);
 
@@ -50,11 +50,11 @@ segResults = semanticseg(imds,net, ...
     'Verbose',false);
 segims = imageDatastore(segdir);
 for k=1:length(segims.Files)
-    if islogical(labels)
-        impart{k} = readimage(segims,k)>1;
-    else
+%     if islogical(labels)
+%         impart{k} = readimage(segims,k)>1;
+%     else
         impart{k} = readimage(segims,k);
-    end
+%     end
 %     imtemp = imr;
 %     imtemp(xxx(k):xxx(k)+tilewidth-1,yyy(k):yyy(k)+tilewidth-1)=impart;
 %     imrpart{k}= imtemp;
